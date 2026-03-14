@@ -36,7 +36,8 @@ The project uses XcodeGen (`project.yml` generates `MetroDetect.xcodeproj`). No 
 CLLocationManager → LocationService (@Published) → MetroViewModel (Combine) → ContentView (@StateObject)
 ```
 
-- **`MetroDetectApp.swift`** — App entry point, launches ContentView
+- **`MetroDetectApp.swift`** — App entry point, launches `SplashScreen` as the root view
+- **`Views/SplashScreen.swift`** — Animated splash screen that displays the app icon and name, then transitions to `ContentView` after 1.5 seconds
 - **`Services/LocationService.swift`** — CLLocationManager wrapper; publishes location, speed, auth status. Filters by accuracy (≤50m) and staleness (≤10s)
 - **`ViewModels/MetroViewModel.swift`** — `@MainActor` trip detection logic. Combines location+speed data to drive a state machine: idle → atStation → onMetro → arrived. Selects likely metro line from departure station and direction
 - **`ContentView.swift`** — Three-card UI (status, speed, nearest station) styled by trip state

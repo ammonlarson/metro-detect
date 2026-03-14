@@ -23,13 +23,16 @@ struct SplashScreen: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemBackground))
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        isActive = true
-                    }
+            .task {
+                try? await Task.sleep(for: .seconds(1.5))
+                withAnimation(.easeOut(duration: 0.3)) {
+                    isActive = true
                 }
             }
         }
     }
+}
+
+#Preview {
+    SplashScreen()
 }
