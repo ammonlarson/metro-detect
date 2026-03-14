@@ -90,6 +90,7 @@ final class MetroViewModel: ObservableObject {
             // Reset to atStation at the arrival point after a moment
             tripState = .atStation(to)
             departureStation = to
+            hasNotifiedCurrentTrip = false
         }
     }
 

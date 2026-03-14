@@ -1,12 +1,23 @@
 import UserNotifications
+import Combine
 
-final class NotificationService {
+@MainActor
+final class NotificationService: ObservableObject {
     static let shared = NotificationService()
+
+    @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
 
     private init() {}
 
     func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { [weak self] granted, error in
+            Task { @MainActor in
+                if let error {
+                    print("Notification authorization error: \(error.localizedDescription)")
+                }
+                self?.authorizationStatus = granted ? .authorized : .denied
+            }
+        }
     }
 
     func sendMetroDetected(line: String, fromStation: String) {

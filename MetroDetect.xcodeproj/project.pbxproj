@@ -27,7 +27,7 @@
 		79F4D35A834FABE4CEFD5346 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		82CC6BDAA44207298F58CA77 /* MetroLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroLine.swift; sourceTree = "<group>"; };
 		9EA0E132A22DC9989E172789 /* MetroDetectApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroDetectApp.swift; sourceTree = "<group>"; };
-		A5F176667C85C6FAE597EBCB /* MetroDetect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetroDetect.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5F176667C85C6FAE597EBCB /* MetroDetect.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MetroDetect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3CD3628C8843AF015C790C5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E92594807AC8FDC585538172 /* MetroStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroStation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -127,6 +127,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					8718F6B9BCDDA46F944D4C76 = {
+						DevelopmentTeam = E5787F652X;
+					};
+				};
 			};
 			buildConfigurationList = F1A8CECF9D840E4DB92E95BD /* Build configuration list for PBXProject "MetroDetect" */;
 			developmentRegion = en;
@@ -182,7 +187,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 5GSP7B436V;
+				DEVELOPMENT_TEAM = E5787F652X;
 				INFOPLIST_FILE = MetroDetect/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -200,7 +205,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 5GSP7B436V;
+				DEVELOPMENT_TEAM = E5787F652X;
 				INFOPLIST_FILE = MetroDetect/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
