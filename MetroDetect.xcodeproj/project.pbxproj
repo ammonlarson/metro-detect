@@ -13,6 +13,7 @@
 		26A8CD89409551D2C4208A1C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3CD3628C8843AF015C790C5 /* Assets.xcassets */; };
 		46EE9BCAF80F62FA940FF565 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F4D35A834FABE4CEFD5346 /* NotificationService.swift */; };
 		540E7E4D93E18465A3571DDA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54F1E59799310D90211C6E18 /* ContentView.swift */; };
+		67B04D7AF68F85CC21387B4A /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FD4A5D0E36C707C987F0FC /* SplashScreen.swift */; };
 		BC96D74F993D30E63D21BFB9 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 698E2F2256312D41CBC37822 /* LocationService.swift */; };
 		F1A0997BBB8B13A2F8BB4AA3 /* MetroLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82CC6BDAA44207298F58CA77 /* MetroLine.swift */; };
 		F28276F0BE8AF59086C08A62 /* MetroViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C9E40E3D3B13528A1777CAB /* MetroViewModel.swift */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		134B8D8EA13AF3C3AD4A0D05 /* MetroTripState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroTripState.swift; sourceTree = "<group>"; };
+		46FD4A5D0E36C707C987F0FC /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		54F1E59799310D90211C6E18 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		698E2F2256312D41CBC37822 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		6C9E40E3D3B13528A1777CAB /* MetroViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroViewModel.swift; sourceTree = "<group>"; };
@@ -50,6 +52,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		15FCF31520C722F996EB6960 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				46FD4A5D0E36C707C987F0FC /* SplashScreen.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		6B16C8EC22C2BD4697672C34 /* MetroDetect */ = {
 			isa = PBXGroup;
 			children = (
@@ -59,6 +69,7 @@
 				064BD5B31A25657EF0AA415E /* Resources */,
 				E43A34A272DD31E203A3AB71 /* Services */,
 				062CAE646074BFE32A27442E /* ViewModels */,
+				15FCF31520C722F996EB6960 /* Views */,
 			);
 			path = MetroDetect;
 			sourceTree = "<group>";
@@ -176,6 +187,7 @@
 				143F7A310FE284BB9A3B4CBF /* MetroTripState.swift in Sources */,
 				F28276F0BE8AF59086C08A62 /* MetroViewModel.swift in Sources */,
 				46EE9BCAF80F62FA940FF565 /* NotificationService.swift in Sources */,
+				67B04D7AF68F85CC21387B4A /* SplashScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
