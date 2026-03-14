@@ -12,6 +12,15 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("MetroDetect")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsView(settings: $viewModel.settings)
+                    } label: {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
         }
         .onAppear {
             viewModel.start()

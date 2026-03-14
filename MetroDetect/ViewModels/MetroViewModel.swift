@@ -6,6 +6,7 @@ final class MetroViewModel: ObservableObject {
     @Published var tripState: MetroTripState = .idle
     @Published var nearestStation: MetroStation?
     @Published var speedKMH: Double = 0
+    @Published var settings: NotificationSettings
 
     private let locationService: LocationService
     private var cancellables = Set<AnyCancellable>()
@@ -13,9 +14,16 @@ final class MetroViewModel: ObservableObject {
     // Track departure station when a trip begins
     private var departureStation: MetroStation?
     private var hasNotifiedCurrentTrip = false
+    private var hasNotifiedProximity = false
+    private var lastNotifiedStationName: String?
+
+    // Movement sustained tracking
+    private var movementStartTime: Date?
+    private var hasNotifiedMovement = false
 
     init(locationService: LocationService = LocationService()) {
         self.locationService = locationService
+        self.settings = NotificationSettings.load()
         bindLocation()
     }
 
@@ -42,6 +50,12 @@ final class MetroViewModel: ObservableObject {
 
         let nearby = nearbyStation(for: location)
         nearestStation = nearby
+
+        // Proximity notification (independent of trip state)
+        handleProximityNotification(station: nearby)
+
+        // Movement sustained notification
+        handleMovementNotification(speed: speed)
 
         switch tripState {
         case .idle, .atStation:
@@ -94,14 +108,75 @@ final class MetroViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Proximity Notifications
+
+    private func handleProximityNotification(station: MetroStation?) {
+        guard settings.notifyNearStation else { return }
+
+        if let station {
+            // Check if this station's lines match the user's filter
+            let stationLineNames = station.lines.map { $0.rawValue }
+            let matchesFilter = settings.shouldNotifyAllLines ||
+                !Set(stationLineNames).isDisjoint(with: settings.notifyLines)
+
+            if matchesFilter && lastNotifiedStationName != station.name {
+                lastNotifiedStationName = station.name
+                NotificationService.shared.sendNearStation(
+                    stationName: station.name,
+                    lines: stationLineNames
+                )
+            }
+        } else {
+            // Moved away from all stations — allow re-notification
+            lastNotifiedStationName = nil
+        }
+    }
+
+    // MARK: - Movement Notifications
+
+    private func handleMovementNotification(speed: Double) {
+        guard settings.notifyOnMovement else {
+            movementStartTime = nil
+            hasNotifiedMovement = false
+            return
+        }
+
+        let inRange = speed >= settings.movementMinSpeedMPS && speed <= settings.movementMaxSpeedMPS
+
+        if inRange {
+            if movementStartTime == nil {
+                movementStartTime = Date()
+            }
+
+            let elapsed = Date().timeIntervalSince(movementStartTime!)
+            if elapsed >= settings.movementSustainedSeconds && !hasNotifiedMovement {
+                // Check station origin requirement
+                if settings.movementRequireStationOrigin && departureStation == nil {
+                    return
+                }
+                hasNotifiedMovement = true
+                NotificationService.shared.sendMovementDetected(
+                    speedKMH: speed * 3.6,
+                    fromStation: departureStation?.name
+                )
+            }
+        } else {
+            movementStartTime = nil
+            hasNotifiedMovement = false
+        }
+    }
+
+    // MARK: - Detection Helpers
+
     private func isMetroSpeed(_ speed: Double) -> Bool {
         speed >= MetroLine.minimumSpeedMPS && speed <= MetroLine.maximumSpeedMPS
     }
 
     private func nearbyStation(for location: CLLocation) -> MetroStation? {
+        let radius = settings.notifyNearStation ? settings.proximityRadius : MetroStation.proximityRadius
         let allStations = MetroLine.all.flatMap { $0.stations }
         return allStations
-            .filter { $0.isNearby(location) }
+            .filter { $0.distance(from: location) <= radius }
             .min { $0.distance(from: location) < $1.distance(from: location) }
     }
 
