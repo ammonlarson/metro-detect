@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = MetroViewModel()
+    @State private var showingSettings = false
 
     var body: some View {
         NavigationStack {
@@ -12,6 +13,20 @@ struct ContentView: View {
             }
             .padding()
             .navigationTitle("MetroDetect")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings, onDismiss: {
+                viewModel.reloadSettings()
+            }) {
+                SettingsView()
+            }
         }
         .onAppear {
             viewModel.start()
