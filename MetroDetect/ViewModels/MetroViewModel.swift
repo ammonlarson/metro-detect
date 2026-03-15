@@ -52,16 +52,22 @@ final class MetroViewModel: ObservableObject {
     private func evaluate(location: CLLocation, speed: Double) {
         speedKMH = speed * 3.6
 
+        let accuracy = location.horizontalAccuracy
+        // Use accuracy-aware check for proximity notifications (avoid false alerts)
+        // but use the standard check for trip state transitions (avoid missing
+        // arrivals when GPS is degraded underground).
         let nearby = nearbyStation(for: location)
         nearestStation = nearby
 
-        // Send proximity notifications using the user's configured radius
-        if settings.proximityEnabled {
+        // Send proximity notifications using the user's configured radius.
+        // When accuracy exceeds the configured radius, skip proximity alerts
+        // because we cannot reliably confirm the user is within range.
+        if settings.proximityEnabled, accuracy <= settings.proximityRadius {
             let allStations = MetroLine.all.flatMap { $0.stations }
             var stationsInRange = Set<String>()
             for station in allStations {
                 let dist = station.distance(from: location)
-                if dist <= settings.proximityRadius {
+                if (dist + accuracy) <= settings.proximityRadius {
                     stationsInRange.insert(station.name)
                     let shouldNotify: Bool
                     switch settings.proximityStationFilter {
