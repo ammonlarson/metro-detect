@@ -19,7 +19,7 @@ struct MetroLine: Identifiable {
 extension MetroLine {
     // Speed thresholds in m/s
     // Copenhagen Metro runs ~40–80 km/h between stations
-    static let minimumSpeedMPS: Double = 8.0   // ~29 km/h — moving, not walking/cycling
+    static let minimumSpeedMPS: Double = 30.0 / 3.6  // 30 km/h — moving, not walking/cycling
     static let maximumSpeedMPS: Double = 25.0  // ~90 km/h — upper bound for metro
 
     static let all: [MetroLine] = [m1, m2, m3, m4]
