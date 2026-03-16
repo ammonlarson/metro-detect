@@ -372,11 +372,11 @@ struct NotificationTestResult: Equatable {
             let speedKMH = String(format: "%.1f", speed * 3.6)
             let inRange = speed >= settings.minimumSpeedMPS && speed <= settings.maximumSpeedMPS
             if inRange {
-                movementResult = (true, "Speed \(speedKMH) km/h is within metro range (\(String(format: "%.0f", settings.minimumSpeedMPS * 3.6))–\(String(format: "%.0f", settings.maximumSpeedMPS * 3.6)) km/h).")
+                movementResult = (true, "Speed \(speedKMH) km/h is within metro range (\(String(format: "%.0f", settings.minimumSpeedKMH))–\(String(format: "%.0f", settings.maximumSpeedKMH)) km/h).")
             } else if speed < settings.minimumSpeedMPS {
-                movementResult = (false, "Speed \(speedKMH) km/h is below minimum (\(String(format: "%.0f", settings.minimumSpeedMPS * 3.6)) km/h).")
+                movementResult = (false, "Speed \(speedKMH) km/h is below minimum (\(String(format: "%.0f", settings.minimumSpeedKMH)) km/h).")
             } else {
-                movementResult = (false, "Speed \(speedKMH) km/h is above maximum (\(String(format: "%.0f", settings.maximumSpeedMPS * 3.6)) km/h).")
+                movementResult = (false, "Speed \(speedKMH) km/h is above maximum (\(String(format: "%.0f", settings.maximumSpeedKMH)) km/h).")
             }
         }
 
