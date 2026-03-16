@@ -27,8 +27,8 @@ struct NotificationSettings: Equatable, Codable {
         proximityRadius: 150,
         proximityStationFilter: .all,
         movementEnabled: true,
-        minimumSpeedMPS: 30.0 / 3.6,
-        maximumSpeedMPS: 25.0,
+        minimumSpeedMPS: 40.0 / 3.6,
+        maximumSpeedMPS: 90.0 / 3.6,
         sustainedDurationSeconds: 0,
         requireStartAtStation: false
     )
