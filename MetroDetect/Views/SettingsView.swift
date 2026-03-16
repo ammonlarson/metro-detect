@@ -247,32 +247,24 @@ struct SettingsView: View {
                 HStack {
                     Text("Min Speed")
                     Spacer()
-                    TextField("m/s", value: $settings.minimumSpeedMPS, format: .number)
+                    TextField("km/h", value: $settings.minimumSpeedKMH, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
-                    Text("m/s")
+                    Text("km/h")
                         .foregroundStyle(.secondary)
                 }
-
-                Text("\(String(format: "%.1f", settings.minimumSpeedMPS * 3.6)) km/h")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
 
                 HStack {
                     Text("Max Speed")
                     Spacer()
-                    TextField("m/s", value: $settings.maximumSpeedMPS, format: .number)
+                    TextField("km/h", value: $settings.maximumSpeedKMH, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
-                    Text("m/s")
+                    Text("km/h")
                         .foregroundStyle(.secondary)
                 }
-
-                Text("\(String(format: "%.1f", settings.maximumSpeedMPS * 3.6)) km/h")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
 
                 if settings.minimumSpeedMPS > settings.maximumSpeedMPS {
                     Text("Min speed must not exceed max speed.")
@@ -380,11 +372,11 @@ struct NotificationTestResult: Equatable {
             let speedKMH = String(format: "%.1f", speed * 3.6)
             let inRange = speed >= settings.minimumSpeedMPS && speed <= settings.maximumSpeedMPS
             if inRange {
-                movementResult = (true, "Speed \(speedKMH) km/h is within metro range (\(String(format: "%.0f", settings.minimumSpeedMPS * 3.6))–\(String(format: "%.0f", settings.maximumSpeedMPS * 3.6)) km/h).")
+                movementResult = (true, "Speed \(speedKMH) km/h is within metro range (\(String(format: "%.0f", settings.minimumSpeedKMH))–\(String(format: "%.0f", settings.maximumSpeedKMH)) km/h).")
             } else if speed < settings.minimumSpeedMPS {
-                movementResult = (false, "Speed \(speedKMH) km/h is below minimum (\(String(format: "%.0f", settings.minimumSpeedMPS * 3.6)) km/h).")
+                movementResult = (false, "Speed \(speedKMH) km/h is below minimum (\(String(format: "%.0f", settings.minimumSpeedKMH)) km/h).")
             } else {
-                movementResult = (false, "Speed \(speedKMH) km/h is above maximum (\(String(format: "%.0f", settings.maximumSpeedMPS * 3.6)) km/h).")
+                movementResult = (false, "Speed \(speedKMH) km/h is above maximum (\(String(format: "%.0f", settings.maximumSpeedKMH)) km/h).")
             }
         }
 
