@@ -14,17 +14,20 @@ struct SettingsView: View {
     private let onSave: (NotificationSettings) -> Void
     private let currentLocation: CLLocation?
     private let currentSpeed: Double
+    private let lastMovementNotificationTime: Date?
 
     init(
         settings: NotificationSettings = .load(),
         currentLocation: CLLocation? = nil,
         currentSpeed: Double = 0,
+        lastMovementNotificationTime: Date? = nil,
         onSave: @escaping (NotificationSettings) -> Void = { $0.save() }
     ) {
         _settings = State(initialValue: settings)
         self.onSave = onSave
         self.currentLocation = currentLocation
         self.currentSpeed = currentSpeed
+        self.lastMovementNotificationTime = lastMovementNotificationTime
 
         // Collect unique station names across all lines
         var seen = Set<String>()
@@ -75,14 +78,19 @@ struct SettingsView: View {
             Toggle("Enable Proximity Alerts", isOn: $settings.proximityEnabled)
 
             if settings.proximityEnabled {
-                HStack {
-                    Text("Radius")
-                    Spacer()
-                    TextField("meters", value: $settings.proximityRadius, format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 80)
-                    Text("m")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Radius")
+                        Spacer()
+                        TextField("meters", value: $settings.proximityRadius, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text("m")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("How close you must be to a station to trigger an alert.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
@@ -192,7 +200,8 @@ struct SettingsView: View {
                     settings: settings,
                     location: currentLocation,
                     speed: currentSpeed,
-                    runNumber: testRunCount
+                    runNumber: testRunCount,
+                    lastMovementNotificationTime: lastMovementNotificationTime
                 )
             } label: {
                 Label("Test Notifications Now", systemImage: "bell.badge")
@@ -282,25 +291,35 @@ struct SettingsView: View {
             Toggle("Enable Movement Alerts", isOn: $settings.movementEnabled)
 
             if settings.movementEnabled {
-                HStack {
-                    Text("Min Speed")
-                    Spacer()
-                    TextField("km/h", value: $settings.minimumSpeedKMH, format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 80)
-                    Text("km/h")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Min Speed")
+                        Spacer()
+                        TextField("km/h", value: $settings.minimumSpeedKMH, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text("km/h")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("Speeds below this are ignored (e.g. walking, cycling).")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                HStack {
-                    Text("Max Speed")
-                    Spacer()
-                    TextField("km/h", value: $settings.maximumSpeedKMH, format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 80)
-                    Text("km/h")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Max Speed")
+                        Spacer()
+                        TextField("km/h", value: $settings.maximumSpeedKMH, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text("km/h")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("Speeds above this are ignored (e.g. cars on highways).")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
@@ -310,18 +329,44 @@ struct SettingsView: View {
                         .foregroundStyle(.red)
                 }
 
-                HStack {
-                    Text("Sustained Duration")
-                    Spacer()
-                    TextField("sec", value: $settings.sustainedDurationSeconds, format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 80)
-                    Text("s")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Sustained Duration")
+                        Spacer()
+                        TextField("sec", value: $settings.sustainedDurationSeconds, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text("s")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("How long speed must stay in range before an alert fires. Use 0 to alert immediately.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Toggle("Require Start at Station", isOn: $settings.requireStartAtStation)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Cooldown")
+                        Spacer()
+                        TextField("min", value: $settings.movementCooldownMinutes, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                        Text("min")
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("Minimum time between repeated movement alerts.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Toggle("Require Start at Station", isOn: $settings.requireStartAtStation)
+                    Text("Only alert if movement began near a metro station.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         } header: {
             Text("Movement Detection")
@@ -345,7 +390,8 @@ struct NotificationTestResult: Equatable {
         settings: NotificationSettings,
         location: CLLocation?,
         speed: Double,
-        runNumber: Int
+        runNumber: Int,
+        lastMovementNotificationTime: Date? = nil
     ) -> NotificationTestResult {
         // Evaluate proximity
         let proximityResult: (Bool, String)
@@ -409,7 +455,27 @@ struct NotificationTestResult: Equatable {
         } else {
             let speedKMH = String(format: "%.1f", speed * 3.6)
             let inRange = speed >= settings.minimumSpeedMPS && speed <= settings.maximumSpeedMPS
-            if inRange {
+
+            let cooldownElapsed: Bool
+            var cooldownNote = ""
+            if settings.movementCooldownSeconds > 0, let lastTime = lastMovementNotificationTime {
+                let elapsed = Date().timeIntervalSince(lastTime)
+                let remaining = settings.movementCooldownSeconds - elapsed
+                if remaining > 0 {
+                    cooldownElapsed = false
+                    let mins = Int(remaining / 60)
+                    let secs = Int(remaining.truncatingRemainder(dividingBy: 60))
+                    cooldownNote = " Cooldown active (\(mins)m \(secs)s remaining)."
+                } else {
+                    cooldownElapsed = true
+                }
+            } else {
+                cooldownElapsed = true
+            }
+
+            if inRange && !cooldownElapsed {
+                movementResult = (false, "Speed \(speedKMH) km/h is within metro range but suppressed by cooldown.\(cooldownNote)")
+            } else if inRange {
                 movementResult = (true, "Speed \(speedKMH) km/h is within metro range (\(String(format: "%.0f", settings.minimumSpeedKMH))–\(String(format: "%.0f", settings.maximumSpeedKMH)) km/h).")
             } else if speed < settings.minimumSpeedMPS {
                 movementResult = (false, "Speed \(speedKMH) km/h is below minimum (\(String(format: "%.0f", settings.minimumSpeedKMH)) km/h).")

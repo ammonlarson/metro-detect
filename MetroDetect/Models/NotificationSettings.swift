@@ -19,6 +19,7 @@ struct NotificationSettings: Equatable, Codable {
     var maximumSpeedMPS: Double
     var sustainedDurationSeconds: TimeInterval
     var requireStartAtStation: Bool
+    var movementCooldownMinutes: Double
 
     // MARK: - Defaults
 
@@ -30,7 +31,8 @@ struct NotificationSettings: Equatable, Codable {
         minimumSpeedMPS: 40.0 / 3.6,
         maximumSpeedMPS: 90.0 / 3.6,
         sustainedDurationSeconds: 0,
-        requireStartAtStation: false
+        requireStartAtStation: false,
+        movementCooldownMinutes: 60
     )
 
     // MARK: - km/h Convenience
@@ -45,6 +47,10 @@ struct NotificationSettings: Equatable, Codable {
         set { maximumSpeedMPS = newValue / 3.6 }
     }
 
+    var movementCooldownSeconds: TimeInterval {
+        movementCooldownMinutes * 60
+    }
+
     // MARK: - Validation
 
     var isValid: Bool {
@@ -53,12 +59,30 @@ struct NotificationSettings: Equatable, Codable {
             && maximumSpeedMPS > 0
             && minimumSpeedMPS <= maximumSpeedMPS
             && sustainedDurationSeconds >= 0
+            && movementCooldownMinutes >= 0
             && {
                 if case .selected(let stations) = proximityStationFilter {
                     return !stations.isEmpty
                 }
                 return true
             }()
+    }
+}
+
+// MARK: - Codable
+
+extension NotificationSettings {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        proximityEnabled = try container.decode(Bool.self, forKey: .proximityEnabled)
+        proximityRadius = try container.decode(Double.self, forKey: .proximityRadius)
+        proximityStationFilter = try container.decode(StationFilter.self, forKey: .proximityStationFilter)
+        movementEnabled = try container.decode(Bool.self, forKey: .movementEnabled)
+        minimumSpeedMPS = try container.decode(Double.self, forKey: .minimumSpeedMPS)
+        maximumSpeedMPS = try container.decode(Double.self, forKey: .maximumSpeedMPS)
+        sustainedDurationSeconds = try container.decode(TimeInterval.self, forKey: .sustainedDurationSeconds)
+        requireStartAtStation = try container.decode(Bool.self, forKey: .requireStartAtStation)
+        movementCooldownMinutes = try container.decodeIfPresent(Double.self, forKey: .movementCooldownMinutes) ?? 60
     }
 }
 
