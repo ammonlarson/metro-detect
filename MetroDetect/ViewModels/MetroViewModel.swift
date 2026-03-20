@@ -21,6 +21,9 @@ final class MetroViewModel: ObservableObject {
     private var hasNotifiedCurrentTrip = false
     private var metroSpeedStartTime: Date?
 
+    /// Maximum distance (meters) for showing the nearest station on the home screen.
+    private static let nearestStationMaxDistance: CLLocationDistance = 10_000
+
     init(locationService: LocationService = LocationService()) {
         self.locationService = locationService
         self.settings = NotificationSettings.load()
@@ -53,11 +56,13 @@ final class MetroViewModel: ObservableObject {
         speedKMH = speed * 3.6
 
         let accuracy = location.horizontalAccuracy
+        // Show the closest station within 10 km on the home screen.
+        nearestStation = closestStation(for: location)
+
         // Use accuracy-aware check for proximity notifications (avoid false alerts)
         // but use the standard check for trip state transitions (avoid missing
         // arrivals when GPS is degraded underground).
         let nearby = nearbyStation(for: location)
-        nearestStation = nearby
 
         // Send proximity notifications using the user's configured radius.
         // When accuracy exceeds the configured radius, skip proximity alerts
@@ -175,6 +180,18 @@ final class MetroViewModel: ObservableObject {
 
     private func isMetroSpeed(_ speed: Double) -> Bool {
         speed >= settings.minimumSpeedMPS && speed <= settings.maximumSpeedMPS
+    }
+
+    private func closestStation(for location: CLLocation) -> MetroStation? {
+        let allStations = MetroLine.all.flatMap { $0.stations }
+        var best: (station: MetroStation, distance: CLLocationDistance)?
+        for station in allStations {
+            let dist = station.distance(from: location)
+            if dist <= Self.nearestStationMaxDistance, dist < (best?.distance ?? .infinity) {
+                best = (station, dist)
+            }
+        }
+        return best?.station
     }
 
     private func nearbyStation(for location: CLLocation) -> MetroStation? {
