@@ -184,9 +184,14 @@ final class MetroViewModel: ObservableObject {
 
     private func closestStation(for location: CLLocation) -> MetroStation? {
         let allStations = MetroLine.all.flatMap { $0.stations }
-        return allStations
-            .min { $0.distance(from: location) < $1.distance(from: location) }
-            .flatMap { $0.distance(from: location) <= Self.nearestStationMaxDistance ? $0 : nil }
+        var best: (station: MetroStation, distance: CLLocationDistance)?
+        for station in allStations {
+            let dist = station.distance(from: location)
+            if dist <= Self.nearestStationMaxDistance, dist < (best?.distance ?? .infinity) {
+                best = (station, dist)
+            }
+        }
+        return best?.station
     }
 
     private func nearbyStation(for location: CLLocation) -> MetroStation? {
