@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var testRunCount: Int = 0
     @State private var isStationListExpanded: Bool = false
     @State private var stationDisplayOrder: [String] = []
+    @State private var lastSelectedStations: Set<String> = []
     @Environment(\.dismiss) private var dismiss
 
     private let allStationNames: [String]
@@ -37,6 +38,10 @@ struct SettingsView: View {
         }
         allStationNames = names.sorted()
         _stationDisplayOrder = State(initialValue: names.sorted())
+
+        if case .selected(let stations) = settings.proximityStationFilter {
+            _lastSelectedStations = State(initialValue: stations)
+        }
     }
 
     var body: some View {
@@ -135,9 +140,14 @@ struct SettingsView: View {
                 return false
             },
             set: { isAll in
-                settings.proximityStationFilter = isAll
-                    ? .all
-                    : .selected(Set())
+                if isAll {
+                    if case .selected(let current) = settings.proximityStationFilter {
+                        lastSelectedStations = current
+                    }
+                    settings.proximityStationFilter = .all
+                } else {
+                    settings.proximityStationFilter = .selected(lastSelectedStations)
+                }
             }
         )
     }
@@ -150,6 +160,7 @@ struct SettingsView: View {
             updated.insert(name)
         }
         settings.proximityStationFilter = .selected(updated)
+        lastSelectedStations = updated
     }
 
     private func computeDisplayOrder(selected: Set<String>) -> [String] {
