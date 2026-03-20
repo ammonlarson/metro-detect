@@ -95,8 +95,13 @@ extension MetroStation {
         return bearing.truncatingRemainder(dividingBy: 360) + (bearing < 0 ? 360 : 0)
     }
 
+    /// Maximum angle (degrees) between the bearing to the user and the bearing to a
+    /// neighbor for the movement to count as "toward" that neighbor. Generous to
+    /// account for GPS jitter underground and curved metro segments.
+    static let directionToleranceDegrees: Double = 90
+
     /// Whether movement from this station toward a given location is roughly heading
-    /// toward any of the station's neighbors. Uses a tolerance of 90° on each side.
+    /// toward any of the station's neighbors.
     func isMovingTowardNeighbor(currentLocation: CLLocation) -> Bool {
         let neighbors = MetroStation.neighbors(of: self)
         guard !neighbors.isEmpty else { return false }
@@ -107,7 +112,7 @@ extension MetroStation {
             let bearingToNeighbor = bearing(to: neighbor.coordinate)
             let diff = abs(bearingToUser - bearingToNeighbor)
             let angleDiff = min(diff, 360 - diff)
-            if angleDiff <= 90 {
+            if angleDiff <= Self.directionToleranceDegrees {
                 return true
             }
         }
