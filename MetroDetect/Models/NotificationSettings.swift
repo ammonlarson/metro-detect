@@ -111,10 +111,11 @@ extension NotificationSettings {
         minimumSpeedMPS = try container.decode(Double.self, forKey: .minimumSpeedMPS)
         maximumSpeedMPS = try container.decode(Double.self, forKey: .maximumSpeedMPS)
         sustainedDurationSeconds = try container.decode(TimeInterval.self, forKey: .sustainedDurationSeconds)
-        // Backward compatibility: previously stored as Bool, now StationFilter?
-        if let filter = try? container.decodeIfPresent(StationFilter.self, forKey: .requireStartAtStationFilter) {
-            requireStartAtStationFilter = filter
-        } else if let legacy = try? container.decodeIfPresent(Bool.self, forKey: .requireStartAtStation) {
+        // Backward compatibility: previously stored as Bool (`requireStartAtStation`),
+        // now StationFilter? (`requireStartAtStationFilter`).
+        if container.contains(.requireStartAtStationFilter) {
+            requireStartAtStationFilter = try container.decodeIfPresent(StationFilter.self, forKey: .requireStartAtStationFilter)
+        } else if let legacy = try container.decodeIfPresent(Bool.self, forKey: .requireStartAtStation) {
             requireStartAtStationFilter = legacy ? .all : nil
         } else {
             requireStartAtStationFilter = nil
