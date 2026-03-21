@@ -312,7 +312,7 @@ struct SettingsView: View {
                                     )
                                 )
                                 .frame(width: geometry.size.width * testProgress)
-                                .animation(.linear(duration: 1.05), value: testProgress)
+                                .transaction { t in t.animation = nil }
                         }
                     }
                     .frame(height: 12)
@@ -360,14 +360,12 @@ struct SettingsView: View {
         isTesting = true
         testResult = nil
 
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
-        withTransaction(transaction) {
-            testProgress = 0
-        }
+        testProgress = 0
 
         DispatchQueue.main.async {
-            testProgress = 1
+            withAnimation(.linear(duration: 1.05)) {
+                testProgress = 1
+            }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
