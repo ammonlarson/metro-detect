@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var testResult: NotificationTestResult?
     @State private var isTesting: Bool = false
     @State private var testProgress: CGFloat = 0
+    @State private var testRunId: Int = 0
     @State private var isStationListExpanded: Bool = false
     @State private var stationDisplayOrder: [String] = []
     @State private var lastSelectedStations: Set<String> = []
@@ -312,9 +313,10 @@ struct SettingsView: View {
                                     )
                                 )
                                 .frame(width: geometry.size.width * testProgress)
-                                .animation(.linear(duration: 1.05), value: testProgress)
+                                .animation(.linear(duration: 0.7), value: testProgress)
                         }
                     }
+                    .id(testRunId)
                     .frame(height: 12)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 } else if let result = testResult {
@@ -359,6 +361,7 @@ struct SettingsView: View {
     private func runTest() {
         testResult = nil
         testProgress = 0
+        testRunId += 1
         isTesting = true
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
