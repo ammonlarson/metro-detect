@@ -15,12 +15,7 @@ struct ContentView: View {
                 stationCard
             }
             .padding()
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("MetroDetect")
-                        .font(.headline)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showingSettings = true
