@@ -278,6 +278,11 @@ struct MapContentView: View {
         guard let userLocation = viewModel.currentLocation else { return }
 
         let userCoord = userLocation.coordinate
+        let overlayFraction = overlayScreenFraction
+        // The visible area above the overlay is (1 - overlayFraction) of the screen.
+        // Scale the map span so the content fits within that visible portion, then
+        // shift the center northward so the visible portion sits above the overlay.
+        let visibleFraction = max(1 - overlayFraction, 0.3)
 
         if let station = viewModel.nearestStation {
             let minLat = min(userCoord.latitude, station.coordinate.latitude)
@@ -288,14 +293,12 @@ struct MapContentView: View {
             let latMargin = max((maxLat - minLat) * 0.4, 0.002)
             let lonMargin = max((maxLon - minLon) * 0.4, 0.002)
 
-            let spanLat = (maxLat - minLat) + latMargin * 2
-            let spanLon = (maxLon - minLon) + lonMargin * 2
+            let contentLat = (maxLat - minLat) + latMargin * 2
+            let contentLon = (maxLon - minLon) + lonMargin * 2
 
-            // Shift center northward so both markers sit in the visible area above the overlay.
-            // The overlay covers a fraction of the screen from the bottom; we compensate by
-            // moving the region center upward by half of that fraction of the latitude span.
-            let overlayFraction = overlayScreenFraction
-            let latOffset = spanLat * overlayFraction * 0.5
+            // Expand the latitude span so the content occupies only the visible portion.
+            let mapSpanLat = contentLat / visibleFraction
+            let latOffset = mapSpanLat * overlayFraction / 2
 
             let region = MKCoordinateRegion(
                 center: CLLocationCoordinate2D(
@@ -303,17 +306,17 @@ struct MapContentView: View {
                     longitude: (minLon + maxLon) / 2
                 ),
                 span: MKCoordinateSpan(
-                    latitudeDelta: spanLat,
-                    longitudeDelta: spanLon
+                    latitudeDelta: mapSpanLat,
+                    longitudeDelta: contentLon
                 )
             )
             withAnimation(.easeInOut(duration: 0.5)) {
                 cameraPosition = .region(region)
             }
         } else {
-            let overlayFraction = overlayScreenFraction
-            let defaultSpan = 0.01
-            let latOffset = defaultSpan * overlayFraction * 0.5
+            let contentLat = 0.01
+            let mapSpanLat = contentLat / visibleFraction
+            let latOffset = mapSpanLat * overlayFraction / 2
 
             withAnimation(.easeInOut(duration: 0.5)) {
                 cameraPosition = .region(
@@ -322,7 +325,7 @@ struct MapContentView: View {
                             latitude: userCoord.latitude + latOffset,
                             longitude: userCoord.longitude
                         ),
-                        span: MKCoordinateSpan(latitudeDelta: defaultSpan, longitudeDelta: defaultSpan)
+                        span: MKCoordinateSpan(latitudeDelta: mapSpanLat, longitudeDelta: contentLat)
                     )
                 )
             }
