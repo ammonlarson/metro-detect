@@ -321,62 +321,30 @@ struct SettingsView: View {
                     .frame(height: 12)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 } else if let result = testResult {
-                    if result.proximityWouldFire {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Proximity: Would fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.proximityDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
-                    } else {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Proximity: Would not fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.proximityDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.red)
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Image(systemName: result.proximityWouldFire ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(result.proximityWouldFire ? .green : .red)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(result.proximityWouldFire ? "Proximity: Would fire" : "Proximity: Would not fire")
+                                .foregroundStyle(.primary)
+                            Text(result.proximityDetail)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
 
                 if let result = testResult {
                     Group {
-                        if result.movementWouldFire {
-                            Label {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Movement: Would fire")
-                                        .foregroundStyle(.primary)
-                                    Text(result.movementDetail)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            } icon: {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
-                            }
-                        } else {
-                            Label {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Movement: Would not fire")
-                                        .foregroundStyle(.primary)
-                                    Text(result.movementDetail)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            } icon: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.red)
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Image(systemName: result.movementWouldFire ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundStyle(result.movementWouldFire ? .green : .red)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(result.movementWouldFire ? "Movement: Would fire" : "Movement: Would not fire")
+                                    .foregroundStyle(.primary)
+                                Text(result.movementDetail)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
