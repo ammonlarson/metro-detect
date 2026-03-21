@@ -302,12 +302,12 @@ struct SettingsView: View {
                 if isTesting {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: 6)
                                 .fill(Color(.systemGray5))
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: 6)
                                 .fill(
                                     LinearGradient(
-                                        colors: [.red, .orange, .yellow, .green, .blue, .purple],
+                                        colors: [.blue, .purple],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -315,7 +315,7 @@ struct SettingsView: View {
                                 .frame(width: geometry.size.width * testProgress)
                         }
                     }
-                    .frame(height: 6)
+                    .frame(height: 12)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 } else if let result = testResult {
                     if result.proximityWouldFire {
@@ -392,11 +392,11 @@ struct SettingsView: View {
         testProgress = 0
         isTesting = true
 
-        withAnimation(.linear(duration: 0.8)) {
+        withAnimation(.linear(duration: 1.6)) {
             testProgress = 1
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
             let result = NotificationTestResult.evaluate(
                 settings: settings,
                 location: currentLocation,
