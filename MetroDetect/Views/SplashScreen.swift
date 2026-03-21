@@ -8,21 +8,22 @@ struct SplashScreen: View {
             ContentView()
         } else {
             VStack(spacing: 20) {
-                Image("AppIconImage")
+                Image("SplashIcon")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                    .frame(width: 480, height: 480)
 
                 Text("MetroDetect")
                     .font(.largeTitle.bold())
+                    .foregroundStyle(.white)
 
                 Text("Copenhagen Metro Detection")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.85))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemBackground))
+            .background(Color("IconBlue"))
+            .ignoresSafeArea()
             .task {
                 try? await Task.sleep(for: .seconds(1.5))
                 withAnimation(.easeOut(duration: 0.3)) {
