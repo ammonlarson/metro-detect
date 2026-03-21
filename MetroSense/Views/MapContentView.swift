@@ -277,9 +277,11 @@ struct MapContentView: View {
                     settingsCategories
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
+
+                Spacer(minLength: 0)
             }
             .padding(.bottom, bottomSafeAreaInset)
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(colorScheme == .dark ? Color.black : Color.white, in: UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20))
             .offset(y: clampedDrag)
             .gesture(
