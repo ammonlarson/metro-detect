@@ -3,27 +3,51 @@ import MapKit
 
 struct MapContentView: View {
     @ObservedObject var viewModel: MetroViewModel
-    @Binding var showingSettings: Bool
+    var onSettingsChanged: (NotificationSettings) -> Void
     @Environment(\.colorScheme) private var colorScheme
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var pulseScale: CGFloat = 1.0
     @State private var lastCameraUpdateLocation: CLLocation?
 
     @AppStorage("mapOverlayExpanded") private var overlayExpanded: Bool = true
+    @State private var settingsVisible: Bool = false
     @State private var dragOffset: CGFloat = 0
     @State private var screenHeight: CGFloat = 0
     @State private var bottomSafeAreaInset: CGFloat = 0
+
+    @State private var showingProximitySettings: Bool = false
+    @State private var showingMovementSettings: Bool = false
+
+    private let allStationNames: [String]
 
     /// Height of the collapsed portion that stays visible (drag handle + status icon only).
     private static let collapsedVisibleHeight: CGFloat = 130
     /// Full overlay card height.
     private static let overlayFullHeight: CGFloat = 340
+    /// Overlay height when settings categories are visible.
+    private static let settingsOverlayHeight: CGFloat = 500
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
 
+    init(viewModel: MetroViewModel, onSettingsChanged: @escaping (NotificationSettings) -> Void) {
+        self.viewModel = viewModel
+        self.onSettingsChanged = onSettingsChanged
+        var seen = Set<String>()
+        var names: [String] = []
+        for line in MetroLine.all {
+            for station in line.stations {
+                if seen.insert(station.name).inserted {
+                    names.append(station.name)
+                }
+            }
+        }
+        allStationNames = names.sorted()
+    }
+
     /// Total overlay height including bottom safe area inset.
     private var totalOverlayHeight: CGFloat {
-        Self.overlayFullHeight + bottomSafeAreaInset
+        let baseHeight = settingsVisible ? Self.settingsOverlayHeight : Self.overlayFullHeight
+        return baseHeight + bottomSafeAreaInset
     }
 
     var body: some View {
@@ -66,6 +90,55 @@ struct MapContentView: View {
         }
         .onChange(of: overlayExpanded) {
             updateCamera()
+        }
+        .onChange(of: settingsVisible) {
+            updateCamera()
+        }
+        .sheet(isPresented: $showingProximitySettings) {
+            NavigationStack {
+                ProximitySettingsView(
+                    settings: Binding(
+                        get: { viewModel.settings },
+                        set: { onSettingsChanged($0) }
+                    ),
+                    allStationNames: allStationNames
+                )
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            showingProximitySettings = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                                .font(.title2)
+                        }
+                        .accessibilityLabel("Close")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingMovementSettings) {
+            NavigationStack {
+                MovementSettingsView(
+                    settings: Binding(
+                        get: { viewModel.settings },
+                        set: { onSettingsChanged($0) }
+                    ),
+                    allStationNames: allStationNames
+                )
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            showingMovementSettings = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                                .font(.title2)
+                        }
+                        .accessibilityLabel("Close")
+                    }
+                }
+            }
         }
     }
 
@@ -199,6 +272,11 @@ struct MapContentView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
+
+                if settingsVisible {
+                    settingsCategories
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
             }
             .padding(.bottom, bottomSafeAreaInset)
             .frame(maxWidth: .infinity)
@@ -212,10 +290,20 @@ struct MapContentView: View {
                     .onEnded { value in
                         let projected = value.predictedEndTranslation.height
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            if projected > Self.snapThreshold {
-                                overlayExpanded = false
-                            } else if projected < -Self.snapThreshold {
-                                overlayExpanded = true
+                            if settingsVisible {
+                                if projected > Self.snapThreshold {
+                                    settingsVisible = false
+                                }
+                            } else if overlayExpanded {
+                                if projected > Self.snapThreshold {
+                                    overlayExpanded = false
+                                } else if projected < -Self.snapThreshold {
+                                    settingsVisible = true
+                                }
+                            } else {
+                                if projected < -Self.snapThreshold {
+                                    overlayExpanded = true
+                                }
                             }
                             dragOffset = 0
                         }
@@ -224,6 +312,7 @@ struct MapContentView: View {
         }
         .clipped()
         .frame(height: totalOverlayHeight)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: settingsVisible)
     }
 
     private var overlayHeader: some View {
@@ -232,13 +321,24 @@ struct MapContentView: View {
             HStack {
                 Spacer()
                 Button {
-                    showingSettings = true
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        if settingsVisible {
+                            settingsVisible = false
+                        } else {
+                            if !overlayExpanded {
+                                overlayExpanded = true
+                            }
+                            settingsVisible = true
+                        }
+                    }
                 } label: {
-                    Image(systemName: "gearshape.fill")
-                        .font(.body)
+                    Image(systemName: settingsVisible ? "xmark.circle.fill" : "gearshape.fill")
+                        .font(settingsVisible ? .title2 : .body)
                         .foregroundStyle(.secondary)
                         .padding(10)
+                        .contentTransition(.symbolEffect(.replace))
                 }
+                .accessibilityLabel(settingsVisible ? "Close settings" : "Settings")
             }
             .padding(.trailing, 8)
         }
@@ -252,6 +352,82 @@ struct MapContentView: View {
             .padding(.bottom, 4)
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
+    }
+
+    // MARK: - Settings Categories
+
+    private var proximityStatusText: String {
+        viewModel.settings.proximityEnabled ? "On — \(Int(viewModel.settings.proximityRadius))m radius" : "Off"
+    }
+
+    private var movementStatusText: String {
+        viewModel.settings.movementEnabled ? "On — \(Int(viewModel.settings.minimumSpeedKMH))–\(Int(viewModel.settings.maximumSpeedKMH)) km/h" : "Off"
+    }
+
+    private var settingsCategories: some View {
+        VStack(spacing: 0) {
+            Divider()
+                .padding(.horizontal)
+
+            Text("Settings")
+                .font(.footnote.bold())
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 4)
+
+            Button {
+                showingProximitySettings = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "location.circle")
+                        .font(.title3)
+                        .foregroundStyle(.blue)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Metro Proximity")
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                        Text(proximityStatusText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
+
+            Divider()
+                .padding(.horizontal)
+
+            Button {
+                showingMovementSettings = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "figure.run")
+                        .font(.title3)
+                        .foregroundStyle(.blue)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Movement Detection")
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                        Text(movementStatusText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
+        }
     }
 
     // MARK: - Degraded Banner
@@ -306,9 +482,14 @@ struct MapContentView: View {
     /// Fraction of the screen height occupied by the overlay in its current state.
     private var overlayScreenFraction: CGFloat {
         guard screenHeight > 0 else { return 0 }
-        let visibleOverlayHeight = overlayExpanded
-            ? totalOverlayHeight
-            : Self.collapsedVisibleHeight
+        let visibleOverlayHeight: CGFloat
+        if settingsVisible {
+            visibleOverlayHeight = Self.settingsOverlayHeight + bottomSafeAreaInset
+        } else if overlayExpanded {
+            visibleOverlayHeight = Self.overlayFullHeight + bottomSafeAreaInset
+        } else {
+            visibleOverlayHeight = Self.collapsedVisibleHeight
+        }
         return visibleOverlayHeight / screenHeight
     }
 
@@ -414,5 +595,5 @@ struct MapContentView: View {
 }
 
 #Preview {
-    MapContentView(viewModel: MetroViewModel(), showingSettings: .constant(false))
+    MapContentView(viewModel: MetroViewModel(), onSettingsChanged: { _ in })
 }
