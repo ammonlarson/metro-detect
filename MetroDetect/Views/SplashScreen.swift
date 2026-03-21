@@ -11,7 +11,7 @@ struct SplashScreen: View {
                 Image("SplashIcon")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 120, height: 120)
+                    .frame(width: 480, height: 480)
 
                 Text("MetroDetect")
                     .font(.largeTitle.bold())
