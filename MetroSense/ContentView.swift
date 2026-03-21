@@ -27,16 +27,20 @@ struct ContentView: View {
     }
 
     private var settingsButton: some View {
-        Button {
-            showingSettings = true
-        } label: {
-            Image(systemName: "gearshape.fill")
-                .font(.body)
-                .padding(10)
-                .background(.ultraThinMaterial, in: Circle())
+        GeometryReader { proxy in
+            Button {
+                showingSettings = true
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.body)
+                    .padding(10)
+                    .background(.ultraThinMaterial, in: Circle())
+            }
+            .position(
+                x: proxy.size.width - 32,
+                y: proxy.safeAreaInsets.top + 24
+            )
         }
-        .padding(.trailing, 16)
-        .padding(.top, 54)
     }
 }
 

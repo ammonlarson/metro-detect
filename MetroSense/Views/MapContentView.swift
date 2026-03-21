@@ -5,6 +5,7 @@ struct MapContentView: View {
     @ObservedObject var viewModel: MetroViewModel
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var pulseScale: CGFloat = 1.0
+    @State private var lastCameraUpdateLocation: CLLocation?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -18,8 +19,20 @@ struct MapContentView: View {
             updateCamera()
         }
         .onChange(of: viewModel.currentLocation?.coordinate.latitude) {
-            updateCamera()
+            updateCameraIfNeeded()
         }
+        .onChange(of: viewModel.currentLocation?.coordinate.longitude) {
+            updateCameraIfNeeded()
+        }
+    }
+
+    private func updateCameraIfNeeded() {
+        guard let current = viewModel.currentLocation else { return }
+        if let last = lastCameraUpdateLocation, current.distance(from: last) < 50 {
+            return
+        }
+        lastCameraUpdateLocation = current
+        updateCamera()
     }
 
     // MARK: - Map
@@ -38,7 +51,7 @@ struct MapContentView: View {
         .mapControls {
             MapCompass()
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(edges: .top)
     }
 
     private var stationAnnotationView: some View {
@@ -111,7 +124,6 @@ struct MapContentView: View {
         .padding(.bottom, 8)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
     }
 
     private func infoRow(icon: String, label: String, value: String) -> some View {
@@ -166,9 +178,9 @@ struct MapContentView: View {
             .padding(10)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 16)
-            .padding(.top, 50)
             Spacer()
         }
+        .padding(.top, 8)
     }
 
     // MARK: - Camera
