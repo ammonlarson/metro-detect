@@ -22,7 +22,7 @@ struct SplashScreen: View {
                     .foregroundStyle(.white.opacity(0.85))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color("IconBlue"))
+            .background(Color("SplashBackground"))
             .ignoresSafeArea()
             .task {
                 try? await Task.sleep(for: .seconds(1.5))
