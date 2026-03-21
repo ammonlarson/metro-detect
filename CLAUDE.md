@@ -359,7 +359,7 @@ Phase 4: Submission
 
 ## Project Overview
 
-MetroDetect is a native iOS app (Swift 5.9, SwiftUI, iOS 17+) that detects when a user is traveling on the Copenhagen Metro using CoreLocation. No third-party dependencies — uses only SwiftUI, CoreLocation, and Combine.
+MetroSense is a native iOS app (Swift 5.9, SwiftUI, iOS 17+) that detects when a user is traveling on the Copenhagen Metro using CoreLocation. No third-party dependencies — uses only SwiftUI, CoreLocation, and Combine.
 
 ## Development Team
 
@@ -369,19 +369,19 @@ Apple Development Team ID: `E5787F652X`
 
 ```bash
 # Build (Debug)
-xcodebuild -scheme MetroDetect -configuration Debug build
+xcodebuild -scheme MetroSense -configuration Debug build
 
 # Build (Release)
-xcodebuild -scheme MetroDetect -configuration Release build
+xcodebuild -scheme MetroSense -configuration Release build
 
 # Run tests (no test target exists yet)
-xcodebuild -scheme MetroDetect test
+xcodebuild -scheme MetroSense test
 
 # Open in Xcode
-open MetroDetect.xcodeproj
+open MetroSense.xcodeproj
 ```
 
-The project uses XcodeGen (`project.yml` generates `MetroDetect.xcodeproj`). No linter or formatter is configured.
+The project uses XcodeGen (`project.yml` generates `MetroSense.xcodeproj`). No linter or formatter is configured.
 
 ## Architecture
 
@@ -391,7 +391,7 @@ The project uses XcodeGen (`project.yml` generates `MetroDetect.xcodeproj`). No 
 CLLocationManager → LocationService (@Published) → MetroViewModel (Combine) → ContentView (@StateObject)
 ```
 
-- **`MetroDetectApp.swift`** — App entry point, launches `SplashScreen` as the root view
+- **`MetroSenseApp.swift`** — App entry point, launches `SplashScreen` as the root view
 - **`Views/SplashScreen.swift`** — Animated splash screen that displays the app icon and name, then transitions to `ContentView` after 1.5 seconds
 - **`Services/LocationService.swift`** — CLLocationManager wrapper; publishes location, speed, auth status. Filters by accuracy (≤50m) and staleness (≤10s)
 - **`ViewModels/MetroViewModel.swift`** — `@MainActor` trip detection logic. Combines location+speed data to drive a state machine: idle → atStation → onMetro → arrived. Selects likely metro line from departure station and direction

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MetroDetectApp: App {
+struct MetroSenseApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreen()
