@@ -8,11 +8,10 @@ struct SplashScreen: View {
             ContentView()
         } else {
             VStack(spacing: 20) {
-                Image("AppIconImage")
+                Image("SplashIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
 
                 Text("MetroDetect")
                     .font(.largeTitle.bold())
