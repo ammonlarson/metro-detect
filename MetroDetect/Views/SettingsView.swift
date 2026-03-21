@@ -312,6 +312,7 @@ struct SettingsView: View {
                                     )
                                 )
                                 .frame(width: geometry.size.width * testProgress)
+                                .animation(.linear(duration: 1.6), value: testProgress)
                         }
                     }
                     .frame(height: 12)
@@ -356,10 +357,10 @@ struct SettingsView: View {
     }
 
     private func runTest() {
-        testProgress = 0
         isTesting = true
+        testProgress = 0
 
-        withAnimation(.linear(duration: 1.6)) {
+        DispatchQueue.main.async {
             testProgress = 1
         }
 
