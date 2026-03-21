@@ -53,6 +53,9 @@ struct MapContentView: View {
         .onChange(of: viewModel.currentLocation?.coordinate.longitude) {
             updateCameraIfNeeded()
         }
+        .onChange(of: overlayExpanded) {
+            updateCamera()
+        }
     }
 
     private func updateCameraIfNeeded() {
@@ -208,7 +211,7 @@ struct MapContentView: View {
             )
         }
         .clipped()
-        .frame(height: 340)
+        .frame(height: Self.overlayFullHeight)
         .padding(.horizontal, 16)
     }
 
