@@ -28,7 +28,6 @@ struct SettingsView: View {
         self.currentSpeed = currentSpeed
         self.lastMovementNotificationTime = lastMovementNotificationTime
 
-        // Collect unique station names across all lines
         var seen = Set<String>()
         var names: [String] = []
         for line in MetroLine.all {
@@ -44,8 +43,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                proximitySection
-                movementSection
+                categoriesSection
                 testSection
             }
             .navigationTitle("Notification Settings")
@@ -70,39 +68,58 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Proximity Section
+    // MARK: - Categories Section
 
-    private var proximitySection: some View {
+    private var categoriesSection: some View {
         Section {
-            Toggle("Enable Proximity Alerts", isOn: $settings.proximityEnabled)
-
-            if settings.proximityEnabled {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Radius")
-                        Spacer()
-                        TextField("meters", value: $settings.proximityRadius, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
-                        Text("m")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("How close you must be to a station to trigger an alert.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                StationFilterPickerView(
-                    filter: $settings.proximityStationFilter,
+            NavigationLink {
+                ProximitySettingsView(
+                    settings: $settings,
                     allStationNames: allStationNames
                 )
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Metro Proximity")
+                        Text(proximityStatusText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "location.circle")
+                        .foregroundStyle(.blue)
+                }
+            }
+
+            NavigationLink {
+                MovementSettingsView(
+                    settings: $settings,
+                    allStationNames: allStationNames
+                )
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Movement Detection")
+                        Text(movementStatusText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "figure.run")
+                        .foregroundStyle(.blue)
+                }
             }
         } header: {
-            Text("Metro Proximity")
-        } footer: {
-            Text("Get notified when you are near a metro station.")
+            Text("Categories")
         }
+    }
+
+    private var proximityStatusText: String {
+        settings.proximityEnabled ? "On — \(Int(settings.proximityRadius))m radius" : "Off"
+    }
+
+    private var movementStatusText: String {
+        settings.movementEnabled ? "On — \(Int(settings.minimumSpeedKMH))–\(Int(settings.maximumSpeedKMH)) km/h" : "Off"
     }
 
     // MARK: - Test Section
@@ -120,7 +137,6 @@ struct SettingsView: View {
             .disabled(!settings.isValid || isTesting)
 
             if isTesting || testResult != nil {
-                // Proximity row: shows progress bar while testing, result when done
                 if isTesting {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
@@ -229,105 +245,6 @@ struct SettingsView: View {
         }
         return nil
     }
-
-    // MARK: - Movement Section
-
-    private var movementSection: some View {
-        Section {
-            Toggle("Enable Movement Alerts", isOn: $settings.movementEnabled)
-
-            if settings.movementEnabled {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Min Speed")
-                        Spacer()
-                        TextField("km/h", value: $settings.minimumSpeedKMH, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
-                        Text("km/h")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("Speeds below this are ignored (e.g. walking, cycling).")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Max Speed")
-                        Spacer()
-                        TextField("km/h", value: $settings.maximumSpeedKMH, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
-                        Text("km/h")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("Speeds above this are ignored (e.g. cars on highways).")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                if settings.minimumSpeedMPS > settings.maximumSpeedMPS {
-                    Text("Min speed must not exceed max speed.")
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Sustained Duration")
-                        Spacer()
-                        TextField("sec", value: $settings.sustainedDurationSeconds, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
-                        Text("s")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("How long speed must stay in range before an alert fires. Use 0 to alert immediately.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text("Cooldown")
-                        Spacer()
-                        TextField("min", value: $settings.movementCooldownMinutes, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
-                        Text("min")
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("Minimum time between repeated movement alerts.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Toggle("Require Start at Station", isOn: $settings.requireStartAtStation)
-                    Text("Only alert if movement began near a metro station.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let filter = Binding($settings.requireStartAtStationFilter) {
-                    StationFilterPickerView(
-                        filter: filter,
-                        allStationNames: allStationNames,
-                        pickerLabel: "Start Stations"
-                    )
-                }
-            }
-        } header: {
-            Text("Movement Detection")
-        } footer: {
-            Text("Get notified when movement matching metro speed is detected.")
-        }
-    }
 }
 
 // MARK: - Notification Test Result
@@ -345,7 +262,6 @@ struct NotificationTestResult: Equatable {
         speed: Double,
         lastMovementNotificationTime: Date? = nil
     ) -> NotificationTestResult {
-        // Evaluate proximity
         let proximityResult: (Bool, String)
         if !settings.proximityEnabled {
             proximityResult = (false, "Proximity alerts are disabled.")
@@ -400,7 +316,6 @@ struct NotificationTestResult: Equatable {
             proximityResult = (false, "Location unavailable.")
         }
 
-        // Evaluate movement
         let movementResult: (Bool, String)
         if !settings.movementEnabled {
             movementResult = (false, "Movement alerts are disabled.")
@@ -428,7 +343,6 @@ struct NotificationTestResult: Equatable {
             if inRange && !cooldownElapsed {
                 movementResult = (false, "Speed \(speedKMH) km/h is within metro range but suppressed by cooldown.\(cooldownNote)")
             } else if inRange {
-                // Check requireStartAtStationFilter before reporting positive
                 if let filter = settings.requireStartAtStationFilter {
                     let allStations = MetroLine.all.flatMap { $0.stations }
                     let nearbyStations: [MetroStation]
