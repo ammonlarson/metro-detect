@@ -19,6 +19,11 @@ struct MapContentView: View {
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
 
+    /// Total overlay height including bottom safe area inset.
+    private var totalOverlayHeight: CGFloat {
+        Self.overlayFullHeight + bottomSafeAreaInset
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottom) {
@@ -42,6 +47,9 @@ struct MapContentView: View {
             }
             .onChange(of: geometry.size.height) {
                 screenHeight = geometry.size.height
+                bottomSafeAreaInset = geometry.safeAreaInsets.bottom
+            }
+            .onChange(of: geometry.safeAreaInsets.bottom) {
                 bottomSafeAreaInset = geometry.safeAreaInsets.bottom
             }
         }
@@ -213,7 +221,7 @@ struct MapContentView: View {
             )
         }
         .clipped()
-        .frame(height: Self.overlayFullHeight + bottomSafeAreaInset)
+        .frame(height: totalOverlayHeight)
     }
 
     private var dragHandle: some View {
@@ -255,8 +263,7 @@ struct MapContentView: View {
     /// The vertical offset applied to the overlay card content, mirrored here
     /// so the reset button tracks the overlay during drag and snap animations.
     private var overlayOffset: CGFloat {
-        let totalHeight = Self.overlayFullHeight + bottomSafeAreaInset
-        let collapseOffset = max(totalHeight - Self.collapsedVisibleHeight, 0)
+        let collapseOffset = max(totalOverlayHeight - Self.collapsedVisibleHeight, 0)
         let baseOffset = overlayExpanded ? 0 : collapseOffset
         return min(max(dragOffset + baseOffset, 0), collapseOffset)
     }
@@ -280,7 +287,7 @@ struct MapContentView: View {
     private var overlayScreenFraction: CGFloat {
         guard screenHeight > 0 else { return 0 }
         let visibleOverlayHeight = overlayExpanded
-            ? Self.overlayFullHeight + bottomSafeAreaInset
+            ? totalOverlayHeight
             : Self.collapsedVisibleHeight
         return visibleOverlayHeight / screenHeight
     }
