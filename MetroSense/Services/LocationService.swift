@@ -6,6 +6,7 @@ final class LocationService: NSObject, ObservableObject {
     @Published var currentSpeed: Double = 0  // m/s
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var isUsingDegradedLocation: Bool = false
+    @Published var heading: CLHeading?
     @Published var error: String?
 
     private static let accuracyThreshold: Double = 200
@@ -32,10 +33,12 @@ final class LocationService: NSObject, ObservableObject {
 
     func startUpdating() {
         manager.startUpdatingLocation()
+        manager.startUpdatingHeading()
     }
 
     func stopUpdating() {
         manager.stopUpdatingLocation()
+        manager.stopUpdatingHeading()
     }
 }
 
@@ -75,6 +78,10 @@ extension LocationService: CLLocationManagerDelegate {
         currentLocation = location
         // CLLocation.speed is -1 when unavailable; clamp to 0
         currentSpeed = max(0, location.speed)
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        heading = newHeading
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

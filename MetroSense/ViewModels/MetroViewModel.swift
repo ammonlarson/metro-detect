@@ -13,6 +13,7 @@ final class MetroViewModel: ObservableObject {
 
     var currentLocation: CLLocation? { locationService.currentLocation }
     var currentSpeed: Double { locationService.currentSpeed }
+    var heading: CLHeading? { locationService.heading }
 
     private let locationService: LocationService
     private var cancellables = Set<AnyCancellable>()
