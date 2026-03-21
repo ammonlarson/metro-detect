@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: |
           xcodebuild build \
-            -scheme MetroDetect \
+            -scheme MetroSense \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -configuration Debug \
             CODE_SIGN_IDENTITY="" \

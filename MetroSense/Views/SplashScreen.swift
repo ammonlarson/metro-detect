@@ -13,7 +13,7 @@ struct SplashScreen: View {
                     .scaledToFit()
                     .frame(width: 480, height: 480)
 
-                Text("MetroDetect")
+                Text("MetroSense")
                     .font(.largeTitle.bold())
                     .foregroundStyle(.white)
 

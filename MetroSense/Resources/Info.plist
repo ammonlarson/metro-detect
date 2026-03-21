@@ -19,9 +19,9 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>MetroDetect uses your location in the background to detect metro travel.</string>
+	<string>MetroSense uses your location in the background to detect metro travel.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>MetroDetect uses your location to detect when you are on the Copenhagen Metro.</string>
+	<string>MetroSense uses your location to detect when you are on the Copenhagen Metro.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
