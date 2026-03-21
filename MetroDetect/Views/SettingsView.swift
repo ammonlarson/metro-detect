@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var testResult: NotificationTestResult?
     @State private var isTesting: Bool = false
     @State private var testResultID: UUID = UUID()
+    @State private var testProgress: CGFloat = 0
     @State private var isStationListExpanded: Bool = false
     @State private var stationDisplayOrder: [String] = []
     @State private var lastSelectedStations: Set<String> = []
@@ -292,82 +293,96 @@ struct SettingsView: View {
                 HStack {
                     Label("Test Notifications Now", systemImage: "bell.badge")
                     Spacer()
-                    if isTesting {
-                        ProgressView()
-                    }
                 }
             }
             .disabled(!settings.isValid || isTesting)
 
-            if let result = testResult, !isTesting {
-                Group {
-                    HStack {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(result.timestamp, style: .time)
-                            .font(.subheadline.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
-
-                    if result.proximityWouldFire {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Proximity: Would fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.proximityDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
-                    } else {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Proximity: Would not fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.proximityDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.red)
+            if isTesting || testResult != nil {
+                // Progress bar row — fills left to right while testing, hidden when idle
+                if isTesting {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(.systemGray5))
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.blue)
+                                .frame(width: geometry.size.width * testProgress)
                         }
                     }
-
-                    if result.movementWouldFire {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Movement: Would fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.movementDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                        }
-                    } else {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Movement: Would not fire")
-                                    .foregroundStyle(.primary)
-                                Text(result.movementDetail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.red)
-                        }
-                    }
+                    .frame(height: 6)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
-                .id(testResultID)
-                .transition(.opacity)
+
+                if let result = testResult {
+                    Group {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(result.timestamp, style: .time)
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+
+                        if result.proximityWouldFire {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Proximity: Would fire")
+                                        .foregroundStyle(.primary)
+                                    Text(result.proximityDetail)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            }
+                        } else {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Proximity: Would not fire")
+                                        .foregroundStyle(.primary)
+                                    Text(result.proximityDetail)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.red)
+                            }
+                        }
+
+                        if result.movementWouldFire {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Movement: Would fire")
+                                        .foregroundStyle(.primary)
+                                    Text(result.movementDetail)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            }
+                        } else {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Movement: Would not fire")
+                                        .foregroundStyle(.primary)
+                                    Text(result.movementDetail)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.red)
+                            }
+                        }
+                    }
+                    .id(testResultID)
+                    .opacity(isTesting ? 0 : 1)
+                }
             }
         } header: {
             Text("Test")
@@ -377,10 +392,13 @@ struct SettingsView: View {
     }
 
     private func runTest() {
-        withAnimation {
-            isTesting = true
-            testResult = nil
+        testProgress = 0
+        isTesting = true
+
+        withAnimation(.linear(duration: 0.4)) {
+            testProgress = 1
         }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             let result = NotificationTestResult.evaluate(
                 settings: settings,
