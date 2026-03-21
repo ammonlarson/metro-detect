@@ -32,7 +32,7 @@ struct MapContentView: View {
     /// Overlay height when settings categories are visible.
     private static let settingsOverlayHeight: CGFloat = 700
     /// Overlay height when test results are visible.
-    private static let testResultsOverlayHeight: CGFloat = 840
+    private static let testResultsOverlayHeight: CGFloat = 900
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
 
