@@ -31,6 +31,8 @@ struct MapContentView: View {
     private static let overlayFullHeight: CGFloat = 340
     /// Overlay height when settings categories are visible.
     private static let settingsOverlayHeight: CGFloat = 700
+    /// Overlay height when test results are visible.
+    private static let testResultsOverlayHeight: CGFloat = 840
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
 
@@ -51,7 +53,13 @@ struct MapContentView: View {
 
     /// Total overlay height (background extends into safe area via ignoresSafeArea).
     private var totalOverlayHeight: CGFloat {
-        settingsVisible ? Self.settingsOverlayHeight : Self.overlayFullHeight
+        if settingsVisible && testResult != nil {
+            return Self.testResultsOverlayHeight
+        } else if settingsVisible {
+            return Self.settingsOverlayHeight
+        } else {
+            return Self.overlayFullHeight
+        }
     }
 
     var body: some View {
@@ -331,6 +339,7 @@ struct MapContentView: View {
         }
         .frame(height: totalOverlayHeight)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: settingsVisible)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: testResult != nil)
     }
 
     private var overlayHeader: some View {
