@@ -6,7 +6,6 @@ struct SettingsView: View {
     @State private var testResult: NotificationTestResult?
     @State private var isTesting: Bool = false
     @State private var testProgress: CGFloat = 0
-    @State private var scrollProxy: ScrollViewProxy?
     @State private var isStationListExpanded: Bool = false
     @State private var stationDisplayOrder: [String] = []
     @State private var lastSelectedStations: Set<String> = []
@@ -58,13 +57,10 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollViewReader { proxy in
             Form {
                 proximitySection
                 movementSection
                 testSection
-            }
-            .onAppear { scrollProxy = proxy }
             }
             .navigationTitle("Notification Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -378,12 +374,33 @@ struct SettingsView: View {
                 testResult = result
                 isTesting = false
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation {
-                    scrollProxy?.scrollTo("testMovementResult", anchor: .bottom)
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                scrollFormToBottom()
             }
         }
+    }
+
+    private func scrollFormToBottom() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let scrollView = findScrollView(in: window) else { return }
+        let bottomOffset = CGPoint(
+            x: 0,
+            y: max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom)
+        )
+        scrollView.setContentOffset(bottomOffset, animated: true)
+    }
+
+    private func findScrollView(in view: UIView) -> UIScrollView? {
+        if let scrollView = view as? UIScrollView {
+            return scrollView
+        }
+        for subview in view.subviews {
+            if let found = findScrollView(in: subview) {
+                return found
+            }
+        }
+        return nil
     }
 
     // MARK: - Movement Section
