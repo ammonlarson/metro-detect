@@ -79,7 +79,7 @@ struct ContentView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(tripStateColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 16))
+        .background(tripStateColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 16))
     }
 
     private var speedCard: some View {
