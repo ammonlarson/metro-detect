@@ -298,60 +298,57 @@ struct SettingsView: View {
             .disabled(!settings.isValid || isTesting)
 
             if isTesting || testResult != nil {
-                // Progress bar row — fills left to right while testing, hidden when idle
+                // Proximity row: shows progress bar while testing, result when done
                 if isTesting {
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(Color(.systemGray5))
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.blue)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.red, .orange, .yellow, .green, .blue, .purple],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
                                 .frame(width: geometry.size.width * testProgress)
                         }
                     }
                     .frame(height: 6)
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                } else if let result = testResult {
+                    if result.proximityWouldFire {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Proximity: Would fire")
+                                    .foregroundStyle(.primary)
+                                Text(result.proximityDetail)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        }
+                    } else {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Proximity: Would not fire")
+                                    .foregroundStyle(.primary)
+                                Text(result.proximityDetail)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.red)
+                        }
+                    }
                 }
 
                 if let result = testResult {
                     Group {
-                        HStack {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(result.timestamp, style: .time)
-                                .font(.subheadline.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if result.proximityWouldFire {
-                            Label {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Proximity: Would fire")
-                                        .foregroundStyle(.primary)
-                                    Text(result.proximityDetail)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            } icon: {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
-                            }
-                        } else {
-                            Label {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Proximity: Would not fire")
-                                        .foregroundStyle(.primary)
-                                    Text(result.proximityDetail)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            } icon: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(.red)
-                            }
-                        }
-
                         if result.movementWouldFire {
                             Label {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -395,11 +392,11 @@ struct SettingsView: View {
         testProgress = 0
         isTesting = true
 
-        withAnimation(.linear(duration: 0.4)) {
+        withAnimation(.linear(duration: 0.8)) {
             testProgress = 1
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             let result = NotificationTestResult.evaluate(
                 settings: settings,
                 location: currentLocation,
