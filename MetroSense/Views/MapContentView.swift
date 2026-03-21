@@ -9,27 +9,40 @@ struct MapContentView: View {
 
     @AppStorage("mapOverlayExpanded") private var overlayExpanded: Bool = true
     @State private var dragOffset: CGFloat = 0
+    @State private var screenHeight: CGFloat = 0
 
     /// Height of the collapsed portion that stays visible (drag handle + status icon only).
     private static let collapsedVisibleHeight: CGFloat = 130
+    /// Full overlay card height.
+    private static let overlayFullHeight: CGFloat = 340
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
+    /// Bottom padding below the overlay card.
+    private static let overlayBottomPadding: CGFloat = 8
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            mapLayer
-            if viewModel.isUsingDegradedLocation {
-                degradedBanner
-            }
-            VStack(spacing: 12) {
-                HStack {
-                    Spacer()
-                    resetCameraButton
+        GeometryReader { geometry in
+            ZStack(alignment: .bottom) {
+                mapLayer
+                if viewModel.isUsingDegradedLocation {
+                    degradedBanner
                 }
-                .padding(.horizontal, 16)
-                overlayCard
+                VStack(spacing: 12) {
+                    HStack {
+                        Spacer()
+                        resetCameraButton
+                    }
+                    .padding(.horizontal, 16)
+                    overlayCard
+                }
+                .padding(.bottom, 8)
             }
-            .padding(.bottom, 8)
+            .onAppear {
+                screenHeight = geometry.size.height
+            }
+            .onChange(of: geometry.size.height) {
+                screenHeight = geometry.size.height
+            }
         }
         .onChange(of: viewModel.nearestStation) {
             updateCamera()
@@ -249,6 +262,15 @@ struct MapContentView: View {
 
     // MARK: - Camera
 
+    /// Fraction of the screen height occupied by the overlay in its current state.
+    private var overlayScreenFraction: CGFloat {
+        guard screenHeight > 0 else { return 0 }
+        let visibleOverlayHeight = overlayExpanded
+            ? Self.overlayFullHeight
+            : Self.collapsedVisibleHeight
+        return (visibleOverlayHeight + Self.overlayBottomPadding) / screenHeight
+    }
+
     private func updateCamera() {
         guard let userLocation = viewModel.currentLocation else { return }
 
@@ -263,25 +285,41 @@ struct MapContentView: View {
             let latMargin = max((maxLat - minLat) * 0.4, 0.002)
             let lonMargin = max((maxLon - minLon) * 0.4, 0.002)
 
+            let spanLat = (maxLat - minLat) + latMargin * 2
+            let spanLon = (maxLon - minLon) + lonMargin * 2
+
+            // Shift center northward so both markers sit in the visible area above the overlay.
+            // The overlay covers a fraction of the screen from the bottom; we compensate by
+            // moving the region center upward by half of that fraction of the latitude span.
+            let overlayFraction = overlayScreenFraction
+            let latOffset = spanLat * overlayFraction * 0.5
+
             let region = MKCoordinateRegion(
                 center: CLLocationCoordinate2D(
-                    latitude: (minLat + maxLat) / 2,
+                    latitude: (minLat + maxLat) / 2 + latOffset,
                     longitude: (minLon + maxLon) / 2
                 ),
                 span: MKCoordinateSpan(
-                    latitudeDelta: (maxLat - minLat) + latMargin * 2,
-                    longitudeDelta: (maxLon - minLon) + lonMargin * 2
+                    latitudeDelta: spanLat,
+                    longitudeDelta: spanLon
                 )
             )
             withAnimation(.easeInOut(duration: 0.5)) {
                 cameraPosition = .region(region)
             }
         } else {
+            let overlayFraction = overlayScreenFraction
+            let defaultSpan = 0.01
+            let latOffset = defaultSpan * overlayFraction * 0.5
+
             withAnimation(.easeInOut(duration: 0.5)) {
                 cameraPosition = .region(
                     MKCoordinateRegion(
-                        center: userCoord,
-                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                        center: CLLocationCoordinate2D(
+                            latitude: userCoord.latitude + latOffset,
+                            longitude: userCoord.longitude
+                        ),
+                        span: MKCoordinateSpan(latitudeDelta: defaultSpan, longitudeDelta: defaultSpan)
                     )
                 )
             }
