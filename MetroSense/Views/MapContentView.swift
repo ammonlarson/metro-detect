@@ -185,7 +185,7 @@ struct MapContentView: View {
                 }
             }
         }
-        .mapStyle(.standard(pointsOfInterest: .including([.publicTransport])))
+        .mapStyle(.standard(emphasis: .muted, pointsOfInterest: .including([.publicTransport])))
         .mapControls {
             MapCompass()
         }
