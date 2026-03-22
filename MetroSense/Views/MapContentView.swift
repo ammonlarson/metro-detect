@@ -110,7 +110,7 @@ struct MapContentView: View {
                             showingProximitySettings = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.title)
+                                .font(.body)
                                 .foregroundStyle(.blue)
                         }
                         .accessibilityLabel("Close")
@@ -133,7 +133,7 @@ struct MapContentView: View {
                             showingMovementSettings = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.title)
+                                .font(.body)
                                 .foregroundStyle(.blue)
                         }
                         .accessibilityLabel("Close")
@@ -155,7 +155,7 @@ struct MapContentView: View {
                             showingTestNotifications = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.title)
+                                .font(.body)
                                 .foregroundStyle(.blue)
                         }
                         .accessibilityLabel("Close")
