@@ -16,7 +16,9 @@ struct TransitMapView: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        if let region = region {
+        mapView.showsUserLocation = showsUserLocation
+
+        if let region = region, !mapView.region.isApproximatelyEqual(to: region) {
             let animated = context.coordinator.hasSetInitialRegion
             mapView.setRegion(region, animated: animated)
             context.coordinator.hasSetInitialRegion = true
@@ -34,9 +36,7 @@ struct TransitMapView: UIViewRepresentable {
 
         if let station = nearestStation {
             if let current = existing.first, current.stationName == station.name {
-                UIView.animate(withDuration: 0.3) {
-                    current.coordinate = station.coordinate
-                }
+                current.coordinate = station.coordinate
                 return
             }
             mapView.removeAnnotations(existing)
@@ -51,6 +51,7 @@ struct TransitMapView: UIViewRepresentable {
 
     final class Coordinator: NSObject, MKMapViewDelegate {
         var hasSetInitialRegion = false
+        private static let pulseViewTag = 1001
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             guard let stationAnnotation = annotation as? StationAnnotation else {
@@ -64,21 +65,21 @@ struct TransitMapView: UIViewRepresentable {
                 annotationView = reused
             } else {
                 annotationView = MKAnnotationView(annotation: stationAnnotation, reuseIdentifier: identifier)
+                annotationView.canShowCallout = true
+                annotationView.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+                configurePulseView(annotationView)
             }
 
-            annotationView.canShowCallout = true
-            annotationView.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-
-            configurePulseView(annotationView)
+            annotationView.accessibilityLabel = stationAnnotation.stationName
 
             return annotationView
         }
 
         private func configurePulseView(_ annotationView: MKAnnotationView) {
-            annotationView.subviews.forEach { $0.removeFromSuperview() }
             annotationView.image = nil
 
             let container = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
+            container.tag = Self.pulseViewTag
             container.isUserInteractionEnabled = false
 
             let pulseCircle = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
@@ -121,7 +122,7 @@ struct TransitMapView: UIViewRepresentable {
 
 final class StationAnnotation: NSObject, MKAnnotation {
     let stationName: String
-    dynamic var coordinate: CLLocationCoordinate2D
+    @objc dynamic var coordinate: CLLocationCoordinate2D
 
     init(station: MetroStation) {
         self.stationName = station.name
@@ -130,4 +131,15 @@ final class StationAnnotation: NSObject, MKAnnotation {
     }
 
     var title: String? { stationName }
+}
+
+// MARK: - Region Comparison
+
+private extension MKCoordinateRegion {
+    func isApproximatelyEqual(to other: MKCoordinateRegion, tolerance: Double = 0.0001) -> Bool {
+        abs(center.latitude - other.center.latitude) < tolerance
+            && abs(center.longitude - other.center.longitude) < tolerance
+            && abs(span.latitudeDelta - other.span.latitudeDelta) < tolerance
+            && abs(span.longitudeDelta - other.span.longitudeDelta) < tolerance
+    }
 }
