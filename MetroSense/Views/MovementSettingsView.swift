@@ -8,6 +8,7 @@ struct MovementSettingsView: View {
         Form {
             Section {
                 Toggle("Enable Movement Alerts", isOn: $settings.movementEnabled)
+                    .tint(.blue)
 
                 if settings.movementEnabled {
                     VStack(alignment: .leading, spacing: 4) {
@@ -82,6 +83,7 @@ struct MovementSettingsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Toggle("Require Start at Station", isOn: $settings.requireStartAtStation)
+                            .tint(.blue)
                         Text("Only alert if movement began near a metro station.")
                             .font(.caption)
                             .foregroundStyle(.secondary)

@@ -8,6 +8,7 @@ struct ProximitySettingsView: View {
         Form {
             Section {
                 Toggle("Enable Proximity Alerts", isOn: $settings.proximityEnabled)
+                    .tint(.blue)
 
                 if settings.proximityEnabled {
                     VStack(alignment: .leading, spacing: 4) {

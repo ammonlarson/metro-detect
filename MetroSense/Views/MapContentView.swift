@@ -17,6 +17,7 @@ struct MapContentView: View {
     @State private var showingProximitySettings: Bool = false
     @State private var showingMovementSettings: Bool = false
     @State private var showingTestNotifications: Bool = false
+    @State private var showSettingsIcon: Bool = true
 
     private let allStationNames: [String]
 
@@ -299,6 +300,8 @@ struct MapContentView: View {
                                 }
                             }
                             dragOffset = 0
+                        } completion: {
+                            showSettingsIcon = !settingsVisible
                         }
                     }
             )
@@ -312,34 +315,38 @@ struct MapContentView: View {
             dragHandle
             HStack {
                 Spacer()
-                if settingsVisible {
-                    Button {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            settingsVisible = false
-                        }
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.secondary)
-                            .padding(10)
-                    }
-                    .accessibilityLabel("Close settings")
-                    .transition(.identity)
-                } else {
+                if showSettingsIcon {
                     Button {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             if !overlayExpanded {
                                 overlayExpanded = true
                             }
                             settingsVisible = true
+                        } completion: {
+                            showSettingsIcon = false
                         }
                     } label: {
                         Image(systemName: "gearshape.fill")
                             .font(.title2)
                             .foregroundStyle(.secondary)
-                            .padding(10)
+                            .frame(width: 44, height: 44)
                     }
                     .accessibilityLabel("Settings")
+                    .transition(.identity)
+                } else {
+                    Button {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            settingsVisible = false
+                        } completion: {
+                            showSettingsIcon = true
+                        }
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .foregroundStyle(.secondary)
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel("Close settings")
                     .transition(.identity)
                 }
             }
