@@ -186,6 +186,7 @@ struct MapContentView: View {
             }
         }
         .mapStyle(.imagery(elevation: .flat))
+        .brightness(0.1)
         .mapControls {
             MapCompass()
         }
