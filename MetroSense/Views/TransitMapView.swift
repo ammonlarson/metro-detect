@@ -15,7 +15,23 @@ struct TransitMapView: UIViewRepresentable {
         mapView.showsUserLocation = showsUserLocation
         mapView.showsCompass = true
         mapView.delegate = context.coordinator
+        addMetroLineOverlays(to: mapView)
         return mapView
+    }
+
+    private func addMetroLineOverlays(to mapView: MKMapView) {
+        for line in MetroLine.all {
+            var coordinates = line.stations.map { $0.coordinate }
+            if line.isCircular, let first = coordinates.first {
+                coordinates.append(first)
+            }
+            let polyline = MetroLineOverlay(
+                coordinates: &coordinates,
+                count: coordinates.count
+            )
+            polyline.lineID = line.id
+            mapView.addOverlay(polyline, level: .aboveRoads)
+        }
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
@@ -108,6 +124,18 @@ struct TransitMapView: UIViewRepresentable {
             startPulseAnimation(pulseCircle)
         }
 
+        func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+            guard let lineOverlay = overlay as? MetroLineOverlay else {
+                return MKOverlayRenderer(overlay: overlay)
+            }
+            let renderer = MKPolylineRenderer(polyline: lineOverlay)
+            renderer.strokeColor = lineOverlay.lineID.mapColor
+            renderer.lineWidth = 4
+            renderer.lineCap = .round
+            renderer.lineJoin = .round
+            return renderer
+        }
+
         private func startPulseAnimation(_ view: UIView) {
             let animation = CABasicAnimation(keyPath: "transform.scale")
             animation.fromValue = 1.0
@@ -134,6 +162,23 @@ final class StationAnnotation: NSObject, MKAnnotation {
     }
 
     var title: String? { stationName }
+}
+
+// MARK: - Metro Line Overlay
+
+final class MetroLineOverlay: MKPolyline {
+    var lineID: MetroLine.LineID = .m1
+}
+
+extension MetroLine.LineID {
+    var mapColor: UIColor {
+        switch self {
+        case .m1: return UIColor(red: 0.0, green: 0.65, blue: 0.31, alpha: 1.0)
+        case .m2: return UIColor(red: 1.0, green: 0.78, blue: 0.0, alpha: 1.0)
+        case .m3: return UIColor(red: 0.87, green: 0.15, blue: 0.17, alpha: 1.0)
+        case .m4: return UIColor(red: 0.0, green: 0.63, blue: 0.87, alpha: 1.0)
+        }
+    }
 }
 
 // MARK: - Region Comparison

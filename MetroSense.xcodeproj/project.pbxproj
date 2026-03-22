@@ -14,6 +14,7 @@
 		4FE4B7D5A619E9A3C255D02E /* MapContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C416A9690EA5DEBE5C4784 /* MapContentView.swift */; };
 		60466D3225B82933E5C98507 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4DAE224E25AB5C6325640083 /* Assets.xcassets */; };
 		6FD5402AA4B21C8588F762FF /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46816E662033897D01B62A6 /* SettingsView.swift */; };
+		92FECA2281EEED26195E98D0 /* TransitMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E97B6B2B8614B249637CDD /* TransitMapView.swift */; };
 		A3270A9E3DBDF7B9D145F2FA /* SplashScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B764777F71F980FF1A1C6979 /* SplashScreen.swift */; };
 		A6285064E544E4C9C9F2A585 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76AE715724C3018308461364 /* LocationService.swift */; };
 		ACF3D20FDB85920502E664CA /* MetroSenseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B860E1311A218F9535E0D19 /* MetroSenseApp.swift */; };
@@ -38,7 +39,8 @@
 		66DC1367451D3060AD2ADEAC /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		679D07887772747157738ED3 /* TestNotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestNotificationsView.swift; sourceTree = "<group>"; };
 		76AE715724C3018308461364 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
-		9C2421502AA5169B997BE291 /* MetroSense.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MetroSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78E97B6B2B8614B249637CDD /* TransitMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitMapView.swift; sourceTree = "<group>"; };
+		9C2421502AA5169B997BE291 /* MetroSense.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MetroSense.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A46816E662033897D01B62A6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B764777F71F980FF1A1C6979 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		BE943D5532AC0FE89616930E /* StationFilterPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationFilterPickerView.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 				B764777F71F980FF1A1C6979 /* SplashScreen.swift */,
 				BE943D5532AC0FE89616930E /* StationFilterPickerView.swift */,
 				679D07887772747157738ED3 /* TestNotificationsView.swift */,
+				78E97B6B2B8614B249637CDD /* TransitMapView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -158,7 +161,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2630;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					F41A2E6F89DB32AEB68B769A = {
 						DevelopmentTeam = E5787F652X;
@@ -216,6 +219,7 @@
 				A3270A9E3DBDF7B9D145F2FA /* SplashScreen.swift in Sources */,
 				D99B99377918DDD079839B54 /* StationFilterPickerView.swift in Sources */,
 				E9F1EEBE43C0CB9188C774F4 /* TestNotificationsView.swift in Sources */,
+				92FECA2281EEED26195E98D0 /* TransitMapView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,7 +230,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -258,10 +261,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = E5787F652X;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -275,7 +276,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -287,6 +287,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = E5787F652X;
 				INFOPLIST_FILE = MetroSense/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -304,6 +305,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = E5787F652X;
 				INFOPLIST_FILE = MetroSense/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -320,7 +322,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -352,10 +353,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = E5787F652X;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -376,7 +375,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
