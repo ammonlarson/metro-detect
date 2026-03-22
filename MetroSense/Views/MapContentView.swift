@@ -104,13 +104,14 @@ struct MapContentView: View {
                     allStationNames: allStationNames
                 )
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showingProximitySettings = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
                                 .font(.title)
+                                .foregroundStyle(.secondary)
+                                .padding(10)
                         }
                         .accessibilityLabel("Close")
                     }
@@ -127,13 +128,14 @@ struct MapContentView: View {
                     allStationNames: allStationNames
                 )
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showingMovementSettings = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
                                 .font(.title)
+                                .foregroundStyle(.secondary)
+                                .padding(10)
                         }
                         .accessibilityLabel("Close")
                     }
@@ -149,13 +151,14 @@ struct MapContentView: View {
                     lastMovementNotificationTime: viewModel.lastMovementNotificationTime
                 )
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showingTestNotifications = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
                                 .font(.title)
+                                .foregroundStyle(.secondary)
+                                .padding(10)
                         }
                         .accessibilityLabel("Close")
                     }

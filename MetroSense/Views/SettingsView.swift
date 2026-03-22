@@ -49,13 +49,14 @@ struct SettingsView: View {
             .navigationTitle("Notification Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.secondary)
                             .font(.title)
+                            .foregroundStyle(.secondary)
+                            .padding(10)
                     }
                     .accessibilityLabel("Close")
                 }
