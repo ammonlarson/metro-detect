@@ -185,7 +185,7 @@ struct MapContentView: View {
                 }
             }
         }
-        .mapStyle(.imagery(elevation: .flat))
+        .mapStyle(.standard(emphasis: .muted, pointsOfInterest: .including([.publicTransport])))
         .mapControls {
             MapCompass()
         }
