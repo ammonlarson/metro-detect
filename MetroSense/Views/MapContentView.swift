@@ -110,7 +110,7 @@ struct MapContentView: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
-                                .font(.title2)
+                                .font(.title)
                         }
                         .accessibilityLabel("Close")
                     }
@@ -133,7 +133,7 @@ struct MapContentView: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
-                                .font(.title2)
+                                .font(.title)
                         }
                         .accessibilityLabel("Close")
                     }
@@ -155,7 +155,7 @@ struct MapContentView: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
-                                .font(.title2)
+                                .font(.title)
                         }
                         .accessibilityLabel("Close")
                     }
@@ -353,7 +353,7 @@ struct MapContentView: View {
                         }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
+                            .font(.title)
                             .foregroundStyle(.secondary)
                             .padding(10)
                     }
@@ -369,7 +369,7 @@ struct MapContentView: View {
                         }
                     } label: {
                         Image(systemName: "gearshape.fill")
-                            .font(.body)
+                            .font(.title2)
                             .foregroundStyle(.secondary)
                             .padding(10)
                     }

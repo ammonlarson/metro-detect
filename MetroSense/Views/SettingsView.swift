@@ -55,7 +55,7 @@ struct SettingsView: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.secondary)
-                            .font(.title2)
+                            .font(.title)
                     }
                     .accessibilityLabel("Close")
                 }
