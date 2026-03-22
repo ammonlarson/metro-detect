@@ -17,11 +17,8 @@ struct MapContentView: View {
 
     @State private var showingProximitySettings: Bool = false
     @State private var showingMovementSettings: Bool = false
+    @State private var showingTestNotifications: Bool = false
     @State private var showGearButton: Bool = true
-    @State private var testResult: NotificationTestResult?
-    @State private var isTesting: Bool = false
-    @State private var testProgress: CGFloat = 0
-    @State private var testRunId: Int = 0
 
     private let allStationNames: [String]
 
@@ -31,8 +28,6 @@ struct MapContentView: View {
     private static let overlayFullHeight: CGFloat = 340
     /// Overlay height when settings categories are visible.
     private static let settingsOverlayHeight: CGFloat = 700
-    /// Overlay height when test results are visible.
-    private static let testResultsOverlayHeight: CGFloat = 900
     /// Threshold to trigger a snap when dragging.
     private static let snapThreshold: CGFloat = 80
 
@@ -53,13 +48,7 @@ struct MapContentView: View {
 
     /// Total overlay height (background extends into safe area via ignoresSafeArea).
     private var totalOverlayHeight: CGFloat {
-        if settingsVisible && testResult != nil {
-            return Self.testResultsOverlayHeight
-        } else if settingsVisible {
-            return Self.settingsOverlayHeight
-        } else {
-            return Self.overlayFullHeight
-        }
+        settingsVisible ? Self.settingsOverlayHeight : Self.overlayFullHeight
     }
 
     var body: some View {
@@ -104,10 +93,6 @@ struct MapContentView: View {
             updateCamera()
         }
         .onChange(of: settingsVisible) {
-            if !settingsVisible {
-                testResult = nil
-                isTesting = false
-            }
             updateCamera()
         }
         .sheet(isPresented: $showingProximitySettings) {
@@ -146,6 +131,28 @@ struct MapContentView: View {
                     ToolbarItem(placement: .cancellationAction) {
                         Button {
                             showingMovementSettings = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                                .font(.title2)
+                        }
+                        .accessibilityLabel("Close")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingTestNotifications) {
+            NavigationStack {
+                TestNotificationsView(
+                    settings: viewModel.settings,
+                    location: viewModel.currentLocation,
+                    speed: viewModel.currentSpeed,
+                    lastMovementNotificationTime: viewModel.lastMovementNotificationTime
+                )
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            showingTestNotifications = false
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.secondary)
@@ -292,8 +299,6 @@ struct MapContentView: View {
                 if settingsVisible {
                     settingsCategories
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    testSection
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
 
                 Spacer(minLength: 0)
@@ -339,7 +344,6 @@ struct MapContentView: View {
         }
         .frame(height: totalOverlayHeight)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: settingsVisible)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: testResult != nil)
     }
 
     private var overlayHeader: some View {
@@ -469,126 +473,32 @@ struct MapContentView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
             }
-        }
-    }
 
-    // MARK: - Test Section
-
-    private var testSection: some View {
-        VStack(spacing: 0) {
             Divider()
                 .padding(.horizontal)
 
-            Text("Test")
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 4)
-
             Button {
-                runTest()
+                showingTestNotifications = true
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "bell.badge")
                         .font(.title3)
                         .foregroundStyle(.blue)
-                    Text("Test Notifications Now")
-                        .font(.body)
-                        .foregroundStyle(.primary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Test Notifications")
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                        Text("Check if alerts would fire now")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(.tertiary)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-            }
-            .disabled(!viewModel.settings.isValid || isTesting)
-
-            if isTesting {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color(.systemGray5))
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(
-                                LinearGradient(
-                                    colors: [.blue, .purple],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: geometry.size.width * testProgress)
-                            .animation(.linear(duration: 1.5), value: testProgress)
-                    }
-                }
-                .id(testRunId)
-                .frame(height: 12)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            } else if let result = testResult {
-                VStack(spacing: 8) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Image(systemName: result.proximityWouldFire ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundStyle(result.proximityWouldFire ? .green : .red)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(result.proximityWouldFire ? "Proximity: Would fire" : "Proximity: Would not fire")
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                            Text(result.proximityDetail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                    }
-
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Image(systemName: result.movementWouldFire ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundStyle(result.movementWouldFire ? .green : .red)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(result.movementWouldFire ? "Movement: Would fire" : "Movement: Would not fire")
-                                .font(.body)
-                                .foregroundStyle(.primary)
-                            Text(result.movementDetail)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-            }
-
-            Text("Check whether a notification would fire right now based on your current location and speed.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-                .padding(.bottom, 8)
-        }
-    }
-
-    private func runTest() {
-        testResult = nil
-        testProgress = 0
-        testRunId += 1
-        isTesting = true
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            testProgress = 1
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-            let result = NotificationTestResult.evaluate(
-                settings: viewModel.settings,
-                location: viewModel.currentLocation,
-                speed: viewModel.currentSpeed,
-                lastMovementNotificationTime: viewModel.lastMovementNotificationTime
-            )
-            withAnimation {
-                testResult = result
-                isTesting = false
             }
         }
     }
