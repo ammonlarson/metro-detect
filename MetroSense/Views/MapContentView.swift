@@ -466,83 +466,76 @@ struct MapContentView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 4)
 
-            Button {
+            settingsRow(
+                icon: "location.circle",
+                title: "Metro Proximity",
+                subtitle: proximityStatusText
+            ) {
                 showingProximitySettings = true
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "location.circle")
-                        .font(.title3)
-                        .foregroundStyle(.blue)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Metro Proximity")
-                            .font(.body)
-                            .foregroundStyle(.primary)
-                        Text(proximityStatusText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.bold())
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
             }
 
             Divider()
                 .padding(.horizontal)
 
-            Button {
+            settingsRow(
+                icon: "figure.run",
+                title: "Movement Detection",
+                subtitle: movementStatusText
+            ) {
                 showingMovementSettings = true
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "figure.run")
-                        .font(.title3)
-                        .foregroundStyle(.blue)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Movement Detection")
-                            .font(.body)
-                            .foregroundStyle(.primary)
-                        Text(movementStatusText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.bold())
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
             }
 
             Divider()
                 .padding(.horizontal)
 
-            Button {
+            settingsRow(
+                icon: "bell.badge",
+                title: "Test Notifications",
+                subtitle: "Check if alerts would fire now"
+            ) {
                 showingTestNotifications = true
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "bell.badge")
-                        .font(.title3)
-                        .foregroundStyle(.blue)
+            }
+        }
+    }
+
+    private func settingsRow(
+        icon: String,
+        title: String,
+        subtitle: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(.blue)
+                if isLandscape {
+                    Text(title)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                } else {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Test Notifications")
+                        Text(title)
                             .font(.body)
                             .foregroundStyle(.primary)
-                        Text("Check if alerts would fire now")
+                        Text(subtitle)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.bold())
-                        .foregroundStyle(.tertiary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.bold())
+                    .foregroundStyle(.tertiary)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
     }
 
