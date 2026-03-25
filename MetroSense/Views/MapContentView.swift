@@ -324,23 +324,25 @@ struct MapContentView: View {
             }
             .frame(maxWidth: .infinity)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: - Content Sections
 
     private var statusSection: some View {
-        VStack(spacing: 0) {
+        let compactLandscape = isLandscape && settingsVisible
+        return VStack(spacing: 0) {
             Image(metroStatusImage)
                 .resizable()
                 .scaledToFit()
-                .frame(height: isLandscape ? 60 : 100)
-                .padding(.top, 8)
-                .padding(.bottom, isLandscape ? 6 : 12)
+                .frame(height: compactLandscape ? 36 : (isLandscape ? 60 : 100))
+                .padding(.top, compactLandscape ? 4 : 8)
+                .padding(.bottom, compactLandscape ? 2 : (isLandscape ? 6 : 12))
 
             Text(tripStateLabel)
                 .font(isLandscape ? .headline.bold() : .title2.bold())
                 .foregroundStyle(.primary)
-                .padding(.bottom, 4)
+                .padding(.bottom, compactLandscape ? 2 : 4)
 
             Text(tripStateDetail)
                 .font(.subheadline)
@@ -348,12 +350,13 @@ struct MapContentView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(isLandscape ? 2 : nil)
                 .padding(.horizontal)
-                .padding(.bottom, isLandscape ? 8 : 16)
+                .padding(.bottom, compactLandscape ? 4 : (isLandscape ? 8 : 16))
         }
     }
 
     private var speedSection: some View {
-        HStack {
+        let compactLandscape = isLandscape && settingsVisible
+        return HStack {
             Image(systemName: "speedometer")
                 .font(.title3)
                 .foregroundStyle(.secondary)
@@ -365,11 +368,12 @@ struct MapContentView: View {
                 .font(.title3.monospacedDigit().bold())
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, compactLandscape ? 8 : 14)
     }
 
     private var nearestStationSection: some View {
-        HStack {
+        let compactLandscape = isLandscape && settingsVisible
+        return HStack {
             Image(systemName: "tram.fill")
                 .font(.title3)
                 .foregroundStyle(.secondary)
@@ -386,7 +390,7 @@ struct MapContentView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 14)
+        .padding(.vertical, compactLandscape ? 8 : 14)
     }
 
     private var overlayHeader: some View {
@@ -535,7 +539,7 @@ struct MapContentView: View {
                     .foregroundStyle(.tertiary)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, isLandscape ? 6 : 10)
         }
     }
 
