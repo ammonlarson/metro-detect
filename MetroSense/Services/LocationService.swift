@@ -14,7 +14,7 @@ final class LocationService: NSObject, ObservableObject {
     private static let fallbackAccuracyThreshold: Double = 500
     private static let stalenessLimit: TimeInterval = -30
     /// Duration without a valid location update before declaring signal lost.
-    static let signalLostTimeout: TimeInterval = 15
+    private static let signalLostTimeout: TimeInterval = 15
 
     private let manager = CLLocationManager()
     private var signalLostTimer: Timer?
@@ -50,14 +50,13 @@ final class LocationService: NSObject, ObservableObject {
 
     private func resetSignalLostTimer() {
         signalLostTimer?.invalidate()
-        signalLostTimer = Timer.scheduledTimer(
-            withTimeInterval: Self.signalLostTimeout,
-            repeats: false
-        ) { [weak self] _ in
+        let timer = Timer(timeInterval: Self.signalLostTimeout, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
                 self?.isSignalLost = true
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        signalLostTimer = timer
     }
 }
 
