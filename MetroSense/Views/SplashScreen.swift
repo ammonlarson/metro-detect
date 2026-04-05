@@ -2,24 +2,50 @@ import SwiftUI
 
 struct SplashScreen: View {
     @State private var isActive = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var isLandscape: Bool {
+        verticalSizeClass == .compact
+    }
 
     var body: some View {
         if isActive {
             ContentView()
         } else {
-            VStack(spacing: 20) {
-                Image("SplashIcon")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 480, height: 480)
+            Group {
+                if isLandscape {
+                    HStack(spacing: 24) {
+                        Image("SplashIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 180)
 
-                Text("MetroSense")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(.white)
+                        VStack(spacing: 8) {
+                            Text("MetroSense")
+                                .font(.largeTitle.bold())
+                                .foregroundStyle(.white)
 
-                Text("Copenhagen Metro Detection")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.85))
+                            Text("Copenhagen Metro Detection")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.85))
+                        }
+                    }
+                } else {
+                    VStack(spacing: 20) {
+                        Image("SplashIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 480, height: 480)
+
+                        Text("MetroSense")
+                            .font(.largeTitle.bold())
+                            .foregroundStyle(.white)
+
+                        Text("Copenhagen Metro Detection")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.85))
+                    }
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color("SplashBackground"))
