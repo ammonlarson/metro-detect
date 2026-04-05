@@ -14,6 +14,7 @@ struct MapContentView: View {
     @State private var settingsVisible: Bool = false
     @State private var dragOffset: CGFloat = 0
     @State private var screenHeight: CGFloat = 0
+    @State private var screenWidth: CGFloat = 0
     @State private var bottomSafeAreaInset: CGFloat = 0
 
     @State private var showingProximitySettings: Bool = false
@@ -67,7 +68,11 @@ struct MapContentView: View {
     }
 
     private var currentSettingsHeight: CGFloat {
-        isLandscape ? Self.landscapeSettingsOverlayHeight : Self.settingsOverlayHeight
+        if isLandscape {
+            let maxHeight = max(screenHeight - 20, Self.landscapeOverlayFullHeight)
+            return min(Self.landscapeSettingsOverlayHeight, maxHeight)
+        }
+        return Self.settingsOverlayHeight
     }
 
     /// Total overlay height (background extends into safe area via ignoresSafeArea).
@@ -96,10 +101,12 @@ struct MapContentView: View {
             }
             .onAppear {
                 screenHeight = geometry.size.height
+                screenWidth = geometry.size.width
                 bottomSafeAreaInset = geometry.safeAreaInsets.bottom
             }
             .onChange(of: geometry.size.height) {
                 screenHeight = geometry.size.height
+                screenWidth = geometry.size.width
                 bottomSafeAreaInset = geometry.safeAreaInsets.bottom
             }
             .onChange(of: geometry.safeAreaInsets.bottom) {
@@ -119,6 +126,9 @@ struct MapContentView: View {
             updateCamera()
         }
         .onChange(of: settingsVisible) {
+            updateCamera()
+        }
+        .onChange(of: verticalSizeClass) {
             updateCamera()
         }
         .sheet(isPresented: $showingProximitySettings) {
@@ -469,9 +479,21 @@ struct MapContentView: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 4)
+                .padding(.top, isLandscape ? 6 : 12)
+                .padding(.bottom, isLandscape ? 2 : 4)
 
+            if isLandscape {
+                ScrollView(.vertical, showsIndicators: false) {
+                    settingsCategoryRows
+                }
+            } else {
+                settingsCategoryRows
+            }
+        }
+    }
+
+    private var settingsCategoryRows: some View {
+        VStack(spacing: 0) {
             settingsRow(
                 icon: "location.circle",
                 title: "Metro Proximity",
@@ -564,6 +586,7 @@ struct MapContentView: View {
             .padding(10)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 16)
+            .frame(maxWidth: isLandscape ? 400 : .infinity)
             Spacer()
         }
         .padding(.top, 8)
@@ -584,6 +607,7 @@ struct MapContentView: View {
             .padding(10)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
             .padding(.horizontal, 16)
+            .frame(maxWidth: isLandscape ? 400 : .infinity)
             Spacer()
         }
         .padding(.top, 8)
@@ -635,6 +659,7 @@ struct MapContentView: View {
         let userCoord = userLocation.coordinate
         let overlayFraction = overlayScreenFraction
         let visibleFraction = max(1 - overlayFraction, 0.3)
+        let aspectRatio = screenWidth > 0 && screenHeight > 0 ? screenWidth / screenHeight : 1.0
 
         if let station = viewModel.nearestStation {
             let minLat = min(userCoord.latitude, station.coordinate.latitude)
@@ -643,10 +668,10 @@ struct MapContentView: View {
             let maxLon = max(userCoord.longitude, station.coordinate.longitude)
 
             let latMargin = max((maxLat - minLat) * 0.4, 0.002)
-            let lonMargin = max((maxLon - minLon) * 0.4, 0.002)
+            let lonMargin = max((maxLon - minLon) * 0.4, isLandscape ? 0.004 : 0.002)
 
             let contentLat = (maxLat - minLat) + latMargin * 2
-            let contentLon = (maxLon - minLon) + lonMargin * 2
+            let contentLon = max((maxLon - minLon) + lonMargin * 2, contentLat * aspectRatio)
 
             let mapSpanLat = contentLat / visibleFraction
             let latOffset = mapSpanLat * overlayFraction / 2
@@ -663,6 +688,7 @@ struct MapContentView: View {
             )
         } else {
             let contentLat = 0.01
+            let contentLon = contentLat * aspectRatio
             let mapSpanLat = contentLat / visibleFraction
             let latOffset = mapSpanLat * overlayFraction / 2
 
@@ -671,7 +697,7 @@ struct MapContentView: View {
                     latitude: userCoord.latitude - latOffset,
                     longitude: userCoord.longitude
                 ),
-                span: MKCoordinateSpan(latitudeDelta: mapSpanLat, longitudeDelta: contentLat)
+                span: MKCoordinateSpan(latitudeDelta: mapSpanLat, longitudeDelta: contentLon)
             )
         }
     }
