@@ -293,9 +293,9 @@ enum NotificationTestFireState: Equatable {
     func label(for category: String) -> String {
         switch self {
         case .wouldFire:
-            "\(category): Would fire"
+            return "\(category): Would fire"
         case .wouldNotFire:
-            "\(category): Would not fire"
+            return "\(category): Would not fire"
         case .cooldownBlocked(let remaining):
             let mins = Int(remaining / 60)
             let secs = Int(remaining.truncatingRemainder(dividingBy: 60))
