@@ -84,7 +84,7 @@ struct TestNotificationsView: View {
                 .transition(.opacity)
             }
         }
-        .navigationTitle("Test Notifications")
+        .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
     }
 

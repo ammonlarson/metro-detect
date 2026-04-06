@@ -523,8 +523,8 @@ struct MapContentView: View {
 
             settingsRow(
                 icon: "bell.badge",
-                title: "Test Notifications",
-                subtitle: "Check if alerts would fire now"
+                title: "Notifications",
+                subtitle: "Cooldown & test alerts"
             ) {
                 showingTestNotifications = true
             }
