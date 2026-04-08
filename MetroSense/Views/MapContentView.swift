@@ -5,6 +5,7 @@ struct MapContentView: View {
     @ObservedObject var viewModel: MetroViewModel
     var onSettingsChanged: (NotificationSettings) -> Void
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ScaledMetric(relativeTo: .title2) private var statusImageHeight: CGFloat = 100
     @ScaledMetric(relativeTo: .body) private var sectionVerticalPadding: CGFloat = 14
@@ -347,8 +348,38 @@ struct MapContentView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(isLandscape ? 2 : nil)
                 .padding(.horizontal)
-                .padding(.bottom, isLandscape ? 8 : 16)
+                .padding(.bottom, isOnMetro ? 8 : (isLandscape ? 8 : 16))
+
+            if isOnMetro {
+                rejsekortButton
+                    .padding(.bottom, isLandscape ? 8 : 16)
+            }
         }
+    }
+
+    private var isOnMetro: Bool {
+        if case .onMetro = viewModel.tripState { return true }
+        return false
+    }
+
+    private static let rejsekortURL = URL(string: "https://apps.apple.com/app/id6469603787")!
+
+    private var rejsekortButton: some View {
+        Button {
+            openURL(Self.rejsekortURL)
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "creditcard.fill")
+                    .font(.subheadline)
+                Text("Open Rejsekort")
+                    .font(.subheadline.bold())
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.blue, in: Capsule())
+        }
+        .accessibilityLabel("Open Rejsekort app")
     }
 
     private var speedSection: some View {
