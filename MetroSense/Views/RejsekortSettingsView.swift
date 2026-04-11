@@ -23,7 +23,7 @@ struct RejsekortSettingsView: View {
                             .tint(.blue)
                     }
                 } header: {
-                    Text("Overlay Button")
+                    Text("In App")
                 } footer: {
                     Text(settings.alwaysShowRejsekortPill
                         ? "The Rejsekort shortcut button is always visible on the main screen."
