@@ -24,6 +24,7 @@ targets:
         UILaunchStoryboardName: LaunchScreen
         NSLocationWhenInUseUsageDescription: "MetroSense uses your location to detect when you are on the Copenhagen Metro."
         NSLocationAlwaysAndWhenInUseUsageDescription: "MetroSense uses your location in the background to detect metro travel."
+        NSMotionUsageDescription: "MetroSense uses motion data to improve tunnel travel detection when GPS is unavailable."
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown

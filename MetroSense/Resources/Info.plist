@@ -22,6 +22,8 @@
 	<string>MetroSense uses your location in the background to detect metro travel.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>MetroSense uses your location to detect when you are on the Copenhagen Metro.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>MetroSense uses motion data to improve tunnel travel detection when GPS is unavailable.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

@@ -50,6 +50,14 @@ struct TunnelSettingsView: View {
                             pickerLabel: "Entry Points"
                         )
                     }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Toggle("Use Accelerometer", isOn: $settings.tunnelAccelerometerEnabled)
+                            .tint(.blue)
+                        Text("Use device motion sensors to confirm tunnel movement. Reduces false positives from stationary GPS loss.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             } header: {
                 Text("Infer metro tunnel travel when GPS signal is lost near a station.")
