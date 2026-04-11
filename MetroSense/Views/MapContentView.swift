@@ -394,6 +394,7 @@ struct MapContentView: View {
 
     private var showRejsekortShortcut: Bool {
         guard viewModel.settings.rejsekortEnabled else { return false }
+        if viewModel.settings.alwaysShowRejsekortPill { return true }
         switch viewModel.tripState {
         case .atStation:
             return viewModel.settings.proximityShowRejsekortPill

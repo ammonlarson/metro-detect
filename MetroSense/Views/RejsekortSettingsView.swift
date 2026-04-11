@@ -14,14 +14,20 @@ struct RejsekortSettingsView: View {
 
             if settings.rejsekortEnabled {
                 Section {
-                    Toggle("Metro Proximity", isOn: $settings.proximityShowRejsekortPill)
+                    Toggle("Always Show", isOn: $settings.alwaysShowRejsekortPill)
                         .tint(.blue)
-                    Toggle("Movement Detection", isOn: $settings.movementShowRejsekortPill)
-                        .tint(.blue)
+                    if !settings.alwaysShowRejsekortPill {
+                        Toggle("Metro Proximity", isOn: $settings.proximityShowRejsekortPill)
+                            .tint(.blue)
+                        Toggle("Movement Detection", isOn: $settings.movementShowRejsekortPill)
+                            .tint(.blue)
+                    }
                 } header: {
                     Text("Overlay Button")
                 } footer: {
-                    Text("Show the Rejsekort shortcut button on the main screen when proximity or movement is detected.")
+                    Text(settings.alwaysShowRejsekortPill
+                        ? "The Rejsekort shortcut button is always visible on the main screen."
+                        : "Show the Rejsekort shortcut button on the main screen when proximity or movement is detected.")
                 }
 
                 Section {

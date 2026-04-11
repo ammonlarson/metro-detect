@@ -24,6 +24,7 @@ struct NotificationSettings: Equatable, Codable {
     // MARK: - Rejsekort
 
     var rejsekortEnabled: Bool
+    var alwaysShowRejsekortPill: Bool
     var proximityShowRejsekortPill: Bool
     var movementShowRejsekortPill: Bool
     var proximityRejsekortAction: Bool
@@ -42,6 +43,7 @@ struct NotificationSettings: Equatable, Codable {
         requireStartAtStationFilter: nil,
         movementCooldownMinutes: 60,
         rejsekortEnabled: true,
+        alwaysShowRejsekortPill: false,
         proximityShowRejsekortPill: true,
         movementShowRejsekortPill: true,
         proximityRejsekortAction: true,
@@ -114,6 +116,7 @@ extension NotificationSettings {
         case requireStartAtStation // legacy key for backward compat
         case movementCooldownMinutes
         case rejsekortEnabled
+        case alwaysShowRejsekortPill
         case proximityShowRejsekortPill
         case movementShowRejsekortPill
         case proximityRejsekortAction
@@ -140,6 +143,7 @@ extension NotificationSettings {
         }
         movementCooldownMinutes = try container.decodeIfPresent(Double.self, forKey: .movementCooldownMinutes) ?? 60
         rejsekortEnabled = try container.decodeIfPresent(Bool.self, forKey: .rejsekortEnabled) ?? true
+        alwaysShowRejsekortPill = try container.decodeIfPresent(Bool.self, forKey: .alwaysShowRejsekortPill) ?? false
         proximityShowRejsekortPill = try container.decodeIfPresent(Bool.self, forKey: .proximityShowRejsekortPill) ?? true
         movementShowRejsekortPill = try container.decodeIfPresent(Bool.self, forKey: .movementShowRejsekortPill) ?? true
         proximityRejsekortAction = try container.decodeIfPresent(Bool.self, forKey: .proximityRejsekortAction) ?? true
@@ -158,6 +162,7 @@ extension NotificationSettings {
         try container.encodeIfPresent(requireStartAtStationFilter, forKey: .requireStartAtStationFilter)
         try container.encode(movementCooldownMinutes, forKey: .movementCooldownMinutes)
         try container.encode(rejsekortEnabled, forKey: .rejsekortEnabled)
+        try container.encode(alwaysShowRejsekortPill, forKey: .alwaysShowRejsekortPill)
         try container.encode(proximityShowRejsekortPill, forKey: .proximityShowRejsekortPill)
         try container.encode(movementShowRejsekortPill, forKey: .movementShowRejsekortPill)
         try container.encode(proximityRejsekortAction, forKey: .proximityRejsekortAction)
