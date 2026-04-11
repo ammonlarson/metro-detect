@@ -111,7 +111,7 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        guard response.actionIdentifier == UNNotificationResponse.defaultActionIdentifier else {
+        guard response.actionIdentifier == UNNotificationDefaultActionIdentifier else {
             completionHandler()
             return
         }
