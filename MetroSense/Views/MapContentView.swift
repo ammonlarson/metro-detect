@@ -62,10 +62,11 @@ struct MapContentView: View {
     private static let baseLandscapeCollapsedHeight: CGFloat = 100
     private static let baseLandscapeFullHeight: CGFloat = 220
 
-    /// Maximum overlay height that still leaves enough map visible.
+    /// Maximum overlay height, capped at three-quarters of the screen so the
+    /// map always remains visible. The minimumMapHeight acts as a safety floor.
     private var maxOverlayHeight: CGFloat {
         guard screenHeight > 0 else { return 600 }
-        return screenHeight - Self.minimumMapHeight
+        return min(screenHeight * 0.75, screenHeight - Self.minimumMapHeight)
     }
 
     private var currentCollapsedHeight: CGFloat {
@@ -74,6 +75,14 @@ struct MapContentView: View {
     }
 
     private static let rejsekortButtonHeight: CGFloat = 44
+
+    /// Bottom padding so the lowest content stays above the iPhone's rounded
+    /// lower corners. Uses the safe area inset as a baseline plus a small
+    /// visual buffer; falls back to a minimal margin on devices without a
+    /// bottom safe area (e.g. iPhone SE).
+    private var bottomContentInset: CGFloat {
+        bottomSafeAreaInset > 0 ? bottomSafeAreaInset + 8 : 8
+    }
 
     private var currentFullHeight: CGFloat {
         var base = isLandscape ? Self.baseLandscapeFullHeight : Self.baseFullHeight
@@ -307,6 +316,7 @@ struct MapContentView: View {
                             }
                         }
                     }
+                    .padding(.bottom, bottomContentInset)
                 }
                 .scrollBounceBehavior(.basedOnSize)
 
