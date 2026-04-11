@@ -348,18 +348,22 @@ struct MapContentView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(isLandscape ? 2 : nil)
                 .padding(.horizontal)
-                .padding(.bottom, isOnMetro ? 8 : (isLandscape ? 8 : 16))
+                .padding(.bottom, showRejsekortShortcut ? 8 : (isLandscape ? 8 : 16))
 
-            if isOnMetro {
+            if showRejsekortShortcut {
                 rejsekortButton
                     .padding(.bottom, isLandscape ? 8 : 16)
             }
         }
     }
 
-    private var isOnMetro: Bool {
-        if case .onMetro = viewModel.tripState { return true }
-        return false
+    private var showRejsekortShortcut: Bool {
+        switch viewModel.tripState {
+        case .atStation, .onMetro:
+            return true
+        case .idle, .arrived:
+            return false
+        }
     }
 
     private static let rejsekortURL = URL(string: "https://apps.apple.com/app/id6469603787")!
