@@ -300,25 +300,40 @@ struct MapContentView: View {
                     .padding(.bottom, isLandscape ? 6 : 12)
                     .gesture(overlayDragGesture)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        if isLandscape && settingsVisible {
-                            settingsCategories
-                                .transition(.opacity)
-                        } else if isLandscape {
-                            landscapeContent
-                        } else {
-                            portraitContent
-
-                            if settingsVisible {
+                ScrollViewReader { scrollProxy in
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            if isLandscape && settingsVisible {
                                 settingsCategories
-                                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                    .transition(.opacity)
+                                    .id("settings")
+                            } else if isLandscape {
+                                landscapeContent
+                                    .id("top")
+                            } else {
+                                portraitContent
+                                    .id("top")
+
+                                if settingsVisible {
+                                    settingsCategories
+                                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                        .id("settings")
+                                }
+                            }
+                        }
+                        .padding(.bottom, bottomContentInset)
+                    }
+                    .scrollBounceBehavior(.basedOnSize)
+                    .onChange(of: settingsVisible) {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            if settingsVisible {
+                                scrollProxy.scrollTo("settings", anchor: .bottom)
+                            } else {
+                                scrollProxy.scrollTo("top", anchor: .top)
                             }
                         }
                     }
-                    .padding(.bottom, bottomContentInset)
                 }
-                .scrollBounceBehavior(.basedOnSize)
 
                 Spacer(minLength: 0)
             }
