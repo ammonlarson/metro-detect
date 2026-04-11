@@ -78,6 +78,14 @@ extension LocationService: CLLocationManagerDelegate {
         guard location.horizontalAccuracy >= 0 else { return }
 
         let isStale = location.timestamp.timeIntervalSinceNow < Self.stalenessLimit
+
+        // Any non-stale fix with valid accuracy proves GPS is working,
+        // even if accuracy is too poor for position tracking.
+        if !isStale {
+            isSignalLost = false
+            resetSignalLostTimer()
+        }
+
         let isTooInaccurate = location.horizontalAccuracy > Self.accuracyThreshold
 
         // Accept any valid, non-stale fix within the accuracy threshold.
@@ -92,8 +100,6 @@ extension LocationService: CLLocationManagerDelegate {
         guard !isStale, (!isTooInaccurate || usingFallback) else { return }
 
         isUsingDegradedLocation = usingFallback
-        isSignalLost = false
-        resetSignalLostTimer()
         error = nil
         currentLocation = location
         // CLLocation.speed is -1 when unavailable; clamp to 0
