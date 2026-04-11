@@ -15,6 +15,8 @@ struct TestNotificationsView: View {
 
     var body: some View {
         Form {
+            rejsekortSection
+
             Section {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
@@ -111,6 +113,44 @@ struct TestNotificationsView: View {
             if newValue.isValid {
                 newValue.save()
             }
+        }
+    }
+
+    // MARK: - Rejsekort Section
+
+    private var rejsekortSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Metro Proximity")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.primary)
+
+                Picker("Notification tap opens", selection: $settings.proximityTapAction) {
+                    Text("MetroSense").tag(NotificationSettings.NotificationTapAction.openMetroSense)
+                    Text("Rejsekort").tag(NotificationSettings.NotificationTapAction.openRejsekort)
+                }
+
+                Toggle("Show Rejsekort pill button", isOn: $settings.proximityShowRejsekortPill)
+                    .tint(.blue)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("On-Metro Traveling")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.primary)
+
+                Picker("Notification tap opens", selection: $settings.movementTapAction) {
+                    Text("MetroSense").tag(NotificationSettings.NotificationTapAction.openMetroSense)
+                    Text("Rejsekort").tag(NotificationSettings.NotificationTapAction.openRejsekort)
+                }
+
+                Toggle("Show Rejsekort pill button", isOn: $settings.movementShowRejsekortPill)
+                    .tint(.blue)
+            }
+        } header: {
+            Text("Rejsekort")
+        } footer: {
+            Text("Choose what happens when you tap a notification and whether the Rejsekort shortcut button appears on the main screen.")
         }
     }
 

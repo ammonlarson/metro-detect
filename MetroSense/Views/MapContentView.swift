@@ -369,8 +369,10 @@ struct MapContentView: View {
 
     private var showRejsekortShortcut: Bool {
         switch viewModel.tripState {
-        case .atStation, .onMetro:
-            return true
+        case .atStation:
+            return viewModel.settings.proximityShowRejsekortPill
+        case .onMetro:
+            return viewModel.settings.movementShowRejsekortPill
         case .idle, .arrived:
             return false
         }
