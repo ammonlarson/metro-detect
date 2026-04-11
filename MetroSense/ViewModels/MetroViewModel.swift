@@ -282,15 +282,12 @@ final class MetroViewModel: ObservableObject {
 
         guard let lastLocation = lastKnownLocationBeforeSignalLoss else { return }
 
-        // Find the nearest station to where signal was lost
-        let allStations = MetroLine.all.flatMap { $0.stations }
-        guard let nearest = allStations
-            .map({ ($0, $0.distance(from: lastLocation)) })
-            .filter({ $0.1 <= MetroStation.proximityRadius * 3 }) // within 450m generous radius
-            .min(by: { $0.1 < $1.1 })
+        // Reuse closestStation helper; require within 450m (3x proximity radius)
+        guard let nearest = closestStation(for: lastLocation),
+              nearest.distance <= MetroStation.proximityRadius * 3
         else { return }
 
-        let station = nearest.0
+        let station = nearest.station
 
         // Check tunnel entry point filter
         if let filter = settings.tunnelEntryPointFilter {

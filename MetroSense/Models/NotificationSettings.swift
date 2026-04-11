@@ -108,7 +108,7 @@ struct NotificationSettings: Equatable, Codable {
             && minimumSpeedMPS <= maximumSpeedMPS
             && sustainedDurationSeconds >= 0
             && movementCooldownMinutes >= 0
-            && tunnelSustainedDurationSeconds >= 0
+            && tunnelSustainedDurationSeconds > 0
             && {
                 if case .selected(let stations) = proximityStationFilter {
                     return !stations.isEmpty
