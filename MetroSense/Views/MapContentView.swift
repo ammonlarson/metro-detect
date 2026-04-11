@@ -411,28 +411,25 @@ struct MapContentView: View {
     }
 
     private var settingsOverlayHeader: some View {
-        ZStack {
-            dragHandle
-            HStack {
-                Text("Settings")
-                    .font(.headline.bold())
-                    .padding(.leading, 16)
-                Spacer()
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        settingsVisible = false
-                    }
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 44, height: 44)
+        HStack {
+            Text("Settings")
+                .font(.headline.bold())
+                .padding(.leading, 16)
+            Spacer()
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    settingsVisible = false
                 }
-                .accessibilityLabel("Close settings")
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
             }
-            .padding(.trailing, 8)
-            .padding(.top, 4)
+            .accessibilityLabel("Close settings")
         }
+        .padding(.trailing, 8)
+        .padding(.top, 12)
     }
 
     // MARK: - Portrait Content
