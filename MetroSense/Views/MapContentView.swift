@@ -21,6 +21,7 @@ struct MapContentView: View {
     @State private var screenWidth: CGFloat = 0
     @State private var bottomSafeAreaInset: CGFloat = 0
     @State private var measuredScrollContentHeight: CGFloat = 200
+    @State private var measuredSettingsContentHeight: CGFloat = 200
 
     @State private var showingProximitySettings: Bool = false
     @State private var showingMovementSettings: Bool = false
@@ -38,8 +39,6 @@ struct MapContentView: View {
     private static let baseCollapsedHeight: CGFloat = 130
     private static let baseLandscapeCollapsedHeight: CGFloat = 100
     private static let rejsekortButtonHeight: CGFloat = 44
-    /// Base height for the settings overlay.
-    private static let settingsOverlayBaseHeight: CGFloat = 350
 
     init(viewModel: MetroViewModel, onSettingsChanged: @escaping (NotificationSettings) -> Void) {
         self.viewModel = viewModel
@@ -97,14 +96,27 @@ struct MapContentView: View {
         currentFullHeight
     }
 
-    /// Height used for the settings overlay.
-    private var settingsOverlayHeight: CGFloat {
-        min(Self.settingsOverlayBaseHeight, maxOverlayHeight)
+    /// Height of the settings overlay header (drag handle + title row).
+    private var settingsHeaderAreaHeight: CGFloat {
+        17 + 4
     }
 
-    // MARK: - Preference Key
+    /// Settings overlay height sized to fit content, capped at 3/4 screen.
+    private var settingsOverlayHeight: CGFloat {
+        let ideal = settingsHeaderAreaHeight + measuredSettingsContentHeight + bottomContentInset
+        return min(ideal, maxOverlayHeight)
+    }
+
+    // MARK: - Preference Keys
 
     private struct ScrollContentHeightKey: PreferenceKey {
+        static var defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+            value = max(value, nextValue())
+        }
+    }
+
+    private struct SettingsContentHeightKey: PreferenceKey {
         static var defaultValue: CGFloat = 0
         static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
             value = max(value, nextValue())
@@ -354,9 +366,15 @@ struct MapContentView: View {
 
             ScrollView(.vertical, showsIndicators: false) {
                 settingsCategoryRows
+                    .background(GeometryReader { geo in
+                        Color.clear.preference(key: SettingsContentHeightKey.self, value: geo.size.height)
+                    })
                     .padding(.bottom, bottomContentInset)
             }
             .scrollBounceBehavior(.basedOnSize)
+            .onPreferenceChange(SettingsContentHeightKey.self) { height in
+                measuredSettingsContentHeight = height
+            }
         }
         .frame(height: settingsOverlayHeight)
         .frame(maxWidth: .infinity)
