@@ -49,6 +49,7 @@ final class LocationService: NSObject, ObservableObject {
         manager.stopUpdatingHeading()
         signalLostTimer?.invalidate()
         signalLostTimer = nil
+        signalLostMissCount = 0
     }
 
     private func resetSignalLostTimer() {
@@ -61,7 +62,7 @@ final class LocationService: NSObject, ObservableObject {
         signalLostTimer?.invalidate()
         let timer = Timer(timeInterval: Self.signalLostTimeout, repeats: false) { [weak self] _ in
             DispatchQueue.main.async {
-                guard let self else { return }
+                guard let self, self.signalLostTimer != nil else { return }
                 self.signalLostMissCount += 1
                 if self.signalLostMissCount >= Self.signalLostMissesRequired {
                     self.isSignalLost = true
