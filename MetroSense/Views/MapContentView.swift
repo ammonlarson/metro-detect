@@ -255,6 +255,13 @@ struct MapContentView: View {
             VStack(spacing: 0) {
                 overlayHeader
 
+                Image(metroStatusImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: isLandscape ? min(statusImageHeight * 0.6, 80) : min(statusImageHeight, 140))
+                    .padding(.top, 8)
+                    .padding(.bottom, isLandscape ? 6 : 12)
+
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
                         if isLandscape && settingsVisible {
@@ -336,13 +343,6 @@ struct MapContentView: View {
 
     private var statusSection: some View {
         VStack(spacing: 0) {
-            Image(metroStatusImage)
-                .resizable()
-                .scaledToFit()
-                .frame(height: isLandscape ? min(statusImageHeight * 0.6, 80) : min(statusImageHeight, 140))
-                .padding(.top, 8)
-                .padding(.bottom, isLandscape ? 6 : 12)
-
             Text(tripStateLabel)
                 .font(isLandscape ? .headline.bold() : .title2.bold())
                 .foregroundStyle(.primary)
