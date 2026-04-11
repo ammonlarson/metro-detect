@@ -11,6 +11,7 @@ final class MetroViewModel: ObservableObject {
     @Published var isSignalLost: Bool = true
     @Published var isTunnelDetected: Bool = false
     @Published var tunnelNearStation: MetroStation?
+    @Published var tunnelMotionConfidence: Double = 0
     @Published var settings: NotificationSettings
 
     var currentLocation: CLLocation? { locationService.currentLocation }
@@ -18,6 +19,7 @@ final class MetroViewModel: ObservableObject {
     var heading: CLHeading? { locationService.heading }
 
     private let locationService: LocationService
+    private let motionService = MotionService()
     private var cancellables = Set<AnyCancellable>()
     private var tunnelEvaluationTimer: Timer?
 
@@ -41,6 +43,7 @@ final class MetroViewModel: ObservableObject {
         self.locationService = locationService
         self.settings = NotificationSettings.load()
         bindLocation()
+        bindMotion()
         bindSettings()
     }
 
@@ -84,6 +87,21 @@ final class MetroViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] lost in
                 self?.handleSignalLostChange(lost)
+            }
+            .store(in: &cancellables)
+    }
+
+    private func bindMotion() {
+        motionService.$motionConfidence
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] confidence in
+                guard let self else { return }
+                self.tunnelMotionConfidence = confidence
+                // Re-evaluate tunnel when motion confidence changes and signal is lost
+                if self.isSignalLost, self.settings.tunnelDetectionEnabled,
+                   self.settings.tunnelAccelerometerEnabled {
+                    self.evaluateTunnel()
+                }
             }
             .store(in: &cancellables)
     }
@@ -247,6 +265,9 @@ final class MetroViewModel: ObservableObject {
             signalLostStartTime = Date()
             lastKnownLocationBeforeSignalLoss = locationService.currentLocation
             startTunnelEvaluationTimer()
+            if settings.tunnelDetectionEnabled, settings.tunnelAccelerometerEnabled {
+                motionService.startMonitoring()
+            }
         } else {
             signalLostStartTime = nil
             lastKnownLocationBeforeSignalLoss = nil
@@ -255,6 +276,7 @@ final class MetroViewModel: ObservableObject {
             tunnelEvaluationTimer = nil
             isTunnelDetected = false
             tunnelNearStation = nil
+            motionService.stopMonitoring()
         }
     }
 
@@ -297,6 +319,14 @@ final class MetroViewModel: ObservableObject {
             case .selected(let names):
                 guard names.contains(station.name) else { return }
             }
+        }
+
+        // When accelerometer is enabled, require motion confirmation.
+        // The device must detect vibration/movement consistent with train travel
+        // before confirming tunnel detection. This prevents false positives from
+        // stationary GPS loss (e.g. standing underground).
+        if settings.tunnelAccelerometerEnabled, motionService.isMonitoring {
+            guard motionService.motionConfidence >= 0.3 else { return }
         }
 
         isTunnelDetected = true

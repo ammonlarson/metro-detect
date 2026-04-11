@@ -27,6 +27,7 @@ struct NotificationSettings: Equatable, Codable {
     var tunnelNotificationsEnabled: Bool
     var tunnelSustainedDurationSeconds: TimeInterval
     var tunnelEntryPointFilter: StationFilter?
+    var tunnelAccelerometerEnabled: Bool
 
     // MARK: - Rejsekort
 
@@ -53,6 +54,7 @@ struct NotificationSettings: Equatable, Codable {
         tunnelNotificationsEnabled: true,
         tunnelSustainedDurationSeconds: 30,
         tunnelEntryPointFilter: nil,
+        tunnelAccelerometerEnabled: true,
         rejsekortEnabled: true,
         alwaysShowRejsekortPill: false,
         proximityShowRejsekortPill: true,
@@ -148,6 +150,7 @@ extension NotificationSettings {
         case tunnelNotificationsEnabled
         case tunnelSustainedDurationSeconds
         case tunnelEntryPointFilter
+        case tunnelAccelerometerEnabled
         case rejsekortEnabled
         case alwaysShowRejsekortPill
         case proximityShowRejsekortPill
@@ -179,6 +182,7 @@ extension NotificationSettings {
         tunnelNotificationsEnabled = try container.decodeIfPresent(Bool.self, forKey: .tunnelNotificationsEnabled) ?? true
         tunnelSustainedDurationSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .tunnelSustainedDurationSeconds) ?? 30
         tunnelEntryPointFilter = try container.decodeIfPresent(StationFilter.self, forKey: .tunnelEntryPointFilter)
+        tunnelAccelerometerEnabled = try container.decodeIfPresent(Bool.self, forKey: .tunnelAccelerometerEnabled) ?? true
         rejsekortEnabled = try container.decodeIfPresent(Bool.self, forKey: .rejsekortEnabled) ?? true
         alwaysShowRejsekortPill = try container.decodeIfPresent(Bool.self, forKey: .alwaysShowRejsekortPill) ?? false
         proximityShowRejsekortPill = try container.decodeIfPresent(Bool.self, forKey: .proximityShowRejsekortPill) ?? true
@@ -202,6 +206,7 @@ extension NotificationSettings {
         try container.encode(tunnelNotificationsEnabled, forKey: .tunnelNotificationsEnabled)
         try container.encode(tunnelSustainedDurationSeconds, forKey: .tunnelSustainedDurationSeconds)
         try container.encodeIfPresent(tunnelEntryPointFilter, forKey: .tunnelEntryPointFilter)
+        try container.encode(tunnelAccelerometerEnabled, forKey: .tunnelAccelerometerEnabled)
         try container.encode(rejsekortEnabled, forKey: .rejsekortEnabled)
         try container.encode(alwaysShowRejsekortPill, forKey: .alwaysShowRejsekortPill)
         try container.encode(proximityShowRejsekortPill, forKey: .proximityShowRejsekortPill)
