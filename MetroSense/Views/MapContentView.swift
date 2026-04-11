@@ -575,9 +575,6 @@ struct MapContentView: View {
 
     private var overlayDragGesture: some Gesture {
         DragGesture()
-            .onChanged { value in
-                dragOffset = value.translation.height
-            }
             .onEnded { value in
                 let projected = value.predictedEndTranslation.height
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -590,7 +587,6 @@ struct MapContentView: View {
                             overlayExpanded = true
                         }
                     }
-                    dragOffset = 0
                 }
             }
     }
