@@ -15,7 +15,9 @@ struct MetroSenseApp: App {
                     NotificationService.shared.pendingRejsekortOpen = false
                     UIApplication.shared.open(NotificationService.rejsekortAppURL) { accepted in
                         if !accepted {
-                            UIApplication.shared.open(NotificationService.rejsekortStoreURL)
+                            Task { @MainActor in
+                                UIApplication.shared.open(NotificationService.rejsekortStoreURL)
+                            }
                         }
                     }
                 }

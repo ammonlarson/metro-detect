@@ -95,9 +95,11 @@ extension NotificationService: UNUserNotificationCenterDelegate {
         if tapAction == .openRejsekort {
             Task { @MainActor in
                 self.pendingRejsekortOpen = true
+                completionHandler()
             }
+        } else {
+            completionHandler()
         }
-        completionHandler()
     }
 
     nonisolated func userNotificationCenter(
