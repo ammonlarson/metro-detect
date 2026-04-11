@@ -5,6 +5,7 @@ struct MapContentView: View {
     @ObservedObject var viewModel: MetroViewModel
     var onSettingsChanged: (NotificationSettings) -> Void
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.openURL) private var openURL
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ScaledMetric(relativeTo: .title2) private var statusImageHeight: CGFloat = 100
     @ScaledMetric(relativeTo: .body) private var sectionVerticalPadding: CGFloat = 14
@@ -69,8 +70,13 @@ struct MapContentView: View {
         return min(base, maxOverlayHeight)
     }
 
+    private static let rejsekortButtonHeight: CGFloat = 44
+
     private var currentFullHeight: CGFloat {
-        let base = isLandscape ? Self.baseLandscapeFullHeight : Self.baseFullHeight
+        var base = isLandscape ? Self.baseLandscapeFullHeight : Self.baseFullHeight
+        if showRejsekortShortcut {
+            base += Self.rejsekortButtonHeight
+        }
         return min(base, maxOverlayHeight)
     }
 
@@ -280,6 +286,7 @@ struct MapContentView: View {
         }
         .frame(height: totalOverlayHeight)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: settingsVisible)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: showRejsekortShortcut)
     }
 
     // MARK: - Portrait Content
@@ -347,8 +354,47 @@ struct MapContentView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(isLandscape ? 2 : nil)
                 .padding(.horizontal)
-                .padding(.bottom, isLandscape ? 8 : 16)
+                .padding(.bottom, showRejsekortShortcut ? 8 : (isLandscape ? 8 : 16))
+
+            if showRejsekortShortcut {
+                rejsekortButton
+                    .padding(.bottom, isLandscape ? 8 : 16)
+            }
         }
+    }
+
+    private var showRejsekortShortcut: Bool {
+        switch viewModel.tripState {
+        case .atStation, .onMetro:
+            return true
+        case .idle, .arrived:
+            return false
+        }
+    }
+
+    private static let rejsekortAppURL = URL(string: "https://app.rejsekort.dk")!
+    private static let rejsekortStoreURL = URL(string: "https://apps.apple.com/app/id6469603787")!
+
+    private var rejsekortButton: some View {
+        Button {
+            openURL(Self.rejsekortAppURL) { accepted in
+                if !accepted {
+                    openURL(Self.rejsekortStoreURL)
+                }
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "creditcard.fill")
+                    .font(.subheadline)
+                Text("Open Rejsekort")
+                    .font(.subheadline.bold())
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.blue, in: Capsule())
+        }
+        .accessibilityLabel("Open Rejsekort app")
     }
 
     private var speedSection: some View {
